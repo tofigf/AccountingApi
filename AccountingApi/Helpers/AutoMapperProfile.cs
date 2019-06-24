@@ -3,6 +3,7 @@ using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
 using AutoMapper;
+using EOfficeAPI.Dtos.Nomenklatura.Kontragent;
 using EOfficeAPI.Dtos.Nomenklatura.Product;
 using EOfficeAPI.Dtos.Nomenklatura.Worker;
 using System;
@@ -84,6 +85,24 @@ namespace AccountingApi.Helpers
             //Put
             CreateMap<ProductPutDto, Product>().ReverseMap();
             CreateMap<ProductPutDto, Stock>().ReverseMap();
+            #endregion
+
+            //Contragent
+            #region Contragent
+            //Get
+            CreateMap<Contragent, ContragentGetDto>()
+                     .ForMember(dto => dto.PhotoUrl, opt => opt
+                .MapFrom(src => src.PhotoUrl != null ? $"{appBaseUrl}/Uploads/" + src.PhotoUrl : ""));
+            CreateMap<Contragent, ContragentGetEditDto>()
+                .ForMember(dto => dto.PhotoUrl, opt => opt
+             .MapFrom(src => src.PhotoUrl != null ? $"{appBaseUrl}/Uploads/" + src.PhotoUrl : ""));
+            CreateMap<Contragent_Detail, ContragentGetEditDto>();
+            //Post
+            CreateMap<ContragentPostDto, Contragent>().ReverseMap();
+            CreateMap<ContragentPostDto, Contragent_Detail>().ReverseMap();
+            //Put
+            CreateMap<ContragentPutDto, Contragent>().ReverseMap();
+            CreateMap<ContragentPutDto, Contragent_Detail>().ReverseMap();
             #endregion
         }
     }

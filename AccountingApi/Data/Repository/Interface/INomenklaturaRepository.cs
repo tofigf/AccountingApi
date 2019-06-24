@@ -55,5 +55,28 @@ namespace AccountingApi.Data.Repository.Interface
         Task<bool> CheckProduct(int? currentUserId, int? companyId);
         Task<bool> CheckProductId(int? productId, int? companyId);
         #endregion
+
+        //Elaqeler
+        #region Contragent
+        //Isci
+        Task<Contragent> CreateContragent(Contragent contragentCreate, int? companyId);
+        //iscinin elave melumatlari
+        Task<Contragent_Detail> CreateContragent_Detail(Contragent_Detail contragent_DetailCreate, int? contragentId);
+        //Elaqeler Get
+        Task<PagedList<Contragent>> GetContragents(PaginationParam contragentParam, int? companyId);
+        Task<PagedList<Contragent>> GetSallerContragents(PaginationParam contragentParam, int? companyId);
+        Task<PagedList<Contragent>> GetCostumerContragents(PaginationParam contragentParam, int? companyId);
+        Task<Contragent> GetEditContragent(int? contragentId, int? companyId);
+
+        Task<Contragent_Detail> GetEditContragent_Detail(int? contragentId);
+
+        Task<Contragent> EditContragent(Contragent contragentEdit, int? contragentId);
+        Task<Contragent_Detail> EditContragent_Detail(Contragent_Detail contragentDetailEdit, int? contragentId);
+        //Check
+        Task<bool> CheckContragent(int? currentUserId, int? companyId);
+        Task<bool> CheckContragentId(int? contragentId, int? companyId);
+        //Delete
+        Task<Contragent> DeleteContragent(int? contragentId, int? companyId);
+        #endregion
     }
 }

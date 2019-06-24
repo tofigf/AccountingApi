@@ -16,6 +16,12 @@ namespace AccountingApi.Data
         public DbSet<Tax> Taxes { get; set; }
         public DbSet<Worker> Workers { get; internal set; }
         public DbSet<Worker_Detail> Worker_Details { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Product_Unit> Product_Units { get; set; }
+        public DbSet<Contragent> Contragents { get; set; }
+        public DbSet<Contragent_Detail> Contragent_Details { get; set; }
+
     }
 }
     
