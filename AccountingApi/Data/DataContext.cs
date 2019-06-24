@@ -21,6 +21,7 @@ namespace AccountingApi.Data
         public DbSet<Product_Unit> Product_Units { get; set; }
         public DbSet<Contragent> Contragents { get; set; }
         public DbSet<Contragent_Detail> Contragent_Details { get; set; }
+        public DbSet<AccountsPlan> AccountsPlans { get; set; }
 
     }
 }
