@@ -13,13 +13,14 @@ namespace AccountingApi.Data.Repository
     public class AccountsPlanRepository : IAccountsPlanRepository
     {
         private readonly DataContext _context;
-        private IPathProvider _pathProvider;
+        private readonly IPathProvider _pathProvider;
 
         public AccountsPlanRepository(DataContext context, IPathProvider pathProvider)
         {
             _context = context;
             _pathProvider = pathProvider;
         }
+
         public async Task<List<AccountsPlan>> ImportFromExcel(int? companyId)
         {
             var path = _pathProvider.MapPath("Files/Template.xlsx");
@@ -51,6 +52,17 @@ namespace AccountingApi.Data.Repository
             if (accounts == null)
                 return null;
             return accounts;
+        }
+
+        public async Task<List<AccountsPlan>> GetAccountsPlans(int? companyId)
+        {
+            if (companyId == null)
+                return null;
+            List<AccountsPlan> accountsPlans =  await  _context.AccountsPlans.Where(w => w.CompanyId == companyId).ToListAsync();
+            if (accountsPlans == null)
+                return null;
+
+            return accountsPlans;
         }
     }
 }

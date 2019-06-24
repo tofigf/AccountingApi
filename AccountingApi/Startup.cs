@@ -84,6 +84,7 @@ namespace AccountingApi
             services.AddScoped<INomenklaturaRepository, NomenklaturaRepository>();
             services.AddScoped<IPathProvider, PathProvider>();
             services.AddScoped<IAccountsPlanRepository, AccountsPlanRepository>();
+            services.AddScoped<ISaleRepository, SaleRepository>();
 
             //JWT servis edirik
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

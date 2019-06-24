@@ -40,5 +40,6 @@ namespace AccountingApi.Models
         public Company Company { get; set; }
 
         public virtual ICollection<Contragent_Detail> Contragent_Details { get; set; }
+        public virtual ICollection<Proposal> Proposals { get; set; }
     }
 }

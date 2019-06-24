@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace EOfficeAPI.Dtos.Sale.Income
+{
+    public class IncomeItemInvoiceGetDto
+    {
+        public int Id { get; set; }
+        public bool IsBank { get; set; }
+        public double? PaidMoney { get; set; }
+        public DateTime IncomeCreatedAt { get; set; }
+        public double? TotalOneInvoice { get; set; }
+
+    }
+}

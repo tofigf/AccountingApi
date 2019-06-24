@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Nomenklatura.Product
+namespace AccountingApi.Dtos.Nomenklatura.Product
 {
     public class ProductPostDto
     {

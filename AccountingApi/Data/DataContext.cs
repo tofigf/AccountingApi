@@ -22,6 +22,9 @@ namespace AccountingApi.Data
         public DbSet<Contragent> Contragents { get; set; }
         public DbSet<Contragent_Detail> Contragent_Details { get; set; }
         public DbSet<AccountsPlan> AccountsPlans { get; set; }
+        public DbSet<Proposal> Proposals { get; set; }
+        public DbSet<ProposalItem> ProposalItems { get; set; }
+        public DbSet<ProposalSentMail> ProposalSentMails { get; set; }
 
     }
 }

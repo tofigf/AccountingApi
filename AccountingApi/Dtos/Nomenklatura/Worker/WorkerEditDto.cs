@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Nomenklatura.Worker
+namespace AccountingApi.Dtos.Nomenklatura.Worker
 {
     public class WorkerEditDto
     {

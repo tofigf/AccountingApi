@@ -1,5 +1,5 @@
-﻿using AccountingApi.Models;
-using EOfficeAPI.Dtos.Nomenklatura.Product;
+﻿using AccountingApi.Dtos.Nomenklatura.Product;
+using AccountingApi.Models;
 using EOfficeAPI.Helpers.Pagination;
 using System;
 using System.Collections.Generic;

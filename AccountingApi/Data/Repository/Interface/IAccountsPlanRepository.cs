@@ -9,5 +9,6 @@ namespace AccountingApi.Data.Repository.Interface
  public  interface IAccountsPlanRepository
     {
          Task<List<AccountsPlan>> ImportFromExcel(int? companyId);
+        Task<List<AccountsPlan>> GetAccountsPlans(int? companyId);
     }
 }

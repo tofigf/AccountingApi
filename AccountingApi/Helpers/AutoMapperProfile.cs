@@ -1,11 +1,13 @@
 ﻿using AccountingApi.Dtos;
+using AccountingApi.Dtos.AccountsPlan;
 using AccountingApi.Dtos.Company;
+using AccountingApi.Dtos.Nomenklatura.Kontragent;
+using AccountingApi.Dtos.Nomenklatura.Product;
+using AccountingApi.Dtos.Nomenklatura.Worker;
+using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
 using AutoMapper;
-using EOfficeAPI.Dtos.Nomenklatura.Kontragent;
-using EOfficeAPI.Dtos.Nomenklatura.Product;
-using EOfficeAPI.Dtos.Nomenklatura.Worker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,6 +105,46 @@ namespace AccountingApi.Helpers
             //Put
             CreateMap<ContragentPutDto, Contragent>().ReverseMap();
             CreateMap<ContragentPutDto, Contragent_Detail>().ReverseMap();
+            #endregion
+
+            //AccountsPlan
+            #region AccounstPlan
+            CreateMap<AccountsPlan, AccountsPlanGetDto>().ReverseMap();
+            #endregion
+
+            //Proposal
+            #region Proposal
+
+            //Post
+            CreateMap<ProposalPostDto, Proposal>();
+            CreateMap<ProposalItemPostDto, ProposalItem>();
+            CreateMap<ContragentPutInProposalDto, Contragent>();
+            CreateMap<CompanyPutProposalDto, Company>();
+
+            //Get
+            CreateMap<Proposal, Dtos.Sale.Proposal.ProposalGetDto>();
+            CreateMap<Tax, ProposalEditGetDto>().ReverseMap();
+            CreateMap<Proposal, ProposalEditGetDto>()
+                       .ForMember(dto => dto.ProposalItemGetDtos, opt => opt
+                    .MapFrom(src => src.ProposalItems.Select(s => new {
+                        ProductName = s.Product.Name,
+                        s.Id,
+                        s.SellPrice,
+                        s.Qty,
+                        //s.Taxs,
+                        s.ProductId,
+                        s.TotalOneProduct,
+                        s.Price
+                    })));
+
+            CreateMap<Company, ProposalEditGetDto>();
+            CreateMap<Contragent, ProposalEditGetDto>();
+            CreateMap<ProposalItem, ProposalItemGetDto>();
+            //   .AfterMap((src, dto) =>  { dto.ProposalItems = src.ProposalItemPostDtos; });
+
+            //Put
+            CreateMap<ProposalPutDto, Proposal>().ReverseMap();
+            CreateMap<ProposalItemPutDto, ProposalItem>().ReverseMap();
             #endregion
         }
     }

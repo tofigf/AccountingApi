@@ -269,6 +269,99 @@ namespace AccountingApi.Migrations
                     b.ToTable("Product_Units");
                 });
 
+            modelBuilder.Entity("AccountingApi.Models.Proposal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<int?>("ContragentId");
+
+                    b.Property<DateTime>("CreatedAt");
+
+                    b.Property<string>("Desc")
+                        .HasMaxLength(300);
+
+                    b.Property<DateTime?>("EndDate");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime?>("PreparingDate");
+
+                    b.Property<string>("ProposalNumber")
+                        .HasMaxLength(500);
+
+                    b.Property<double?>("Sum");
+
+                    b.Property<int?>("TaxId");
+
+                    b.Property<double?>("TotalPrice");
+
+                    b.Property<double?>("TotalTax");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ContragentId");
+
+                    b.HasIndex("TaxId");
+
+                    b.ToTable("Proposals");
+                });
+
+            modelBuilder.Entity("AccountingApi.Models.ProposalItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<double?>("Price");
+
+                    b.Property<int?>("ProductId");
+
+                    b.Property<int?>("ProposalId");
+
+                    b.Property<int?>("Qty");
+
+                    b.Property<double?>("SellPrice");
+
+                    b.Property<double?>("TotalOneProduct");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProposalId");
+
+                    b.ToTable("ProposalItems");
+                });
+
+            modelBuilder.Entity("AccountingApi.Models.ProposalSentMail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(50);
+
+                    b.Property<byte>("IsPaid");
+
+                    b.Property<int>("ProposalId");
+
+                    b.Property<string>("Token")
+                        .HasMaxLength(100);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProposalId");
+
+                    b.ToTable("ProposalSentMails");
+                });
+
             modelBuilder.Entity("AccountingApi.Models.Stock", b =>
                 {
                     b.Property<int>("Id")
@@ -492,6 +585,41 @@ namespace AccountingApi.Migrations
                     b.HasOne("AccountingApi.Models.Company", "Company")
                         .WithMany("Product_Units")
                         .HasForeignKey("CompanyId");
+                });
+
+            modelBuilder.Entity("AccountingApi.Models.Proposal", b =>
+                {
+                    b.HasOne("AccountingApi.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("AccountingApi.Models.Contragent", "Contragent")
+                        .WithMany("Proposals")
+                        .HasForeignKey("ContragentId");
+
+                    b.HasOne("AccountingApi.Models.Tax", "Tax")
+                        .WithMany()
+                        .HasForeignKey("TaxId");
+                });
+
+            modelBuilder.Entity("AccountingApi.Models.ProposalItem", b =>
+                {
+                    b.HasOne("AccountingApi.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.HasOne("AccountingApi.Models.Proposal", "Proposal")
+                        .WithMany("ProposalItems")
+                        .HasForeignKey("ProposalId");
+                });
+
+            modelBuilder.Entity("AccountingApi.Models.ProposalSentMail", b =>
+                {
+                    b.HasOne("AccountingApi.Models.Proposal", "Proposal")
+                        .WithMany("ProposalSentMails")
+                        .HasForeignKey("ProposalId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("AccountingApi.Models.Stock", b =>
