@@ -4,14 +4,16 @@ using AccountingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccountingApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190625071315_Invoice")]
+    partial class Invoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +31,6 @@ namespace AccountingApi.Migrations
                         .HasMaxLength(100);
 
                     b.Property<bool?>("Active");
-
-                    b.Property<string>("Category")
-                        .HasMaxLength(350);
 
                     b.Property<int>("CompanyId");
 
@@ -54,35 +53,6 @@ namespace AccountingApi.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("AccountsPlans");
-                });
-
-            modelBuilder.Entity("AccountingApi.Models.BalanceSheet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("AccountsPlanId");
-
-                    b.Property<int>("CompanyId");
-
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<double?>("DebitMoney");
-
-                    b.Property<int?>("InvoiceId");
-
-                    b.Property<double?>("KreditMoney");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountsPlanId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.ToTable("BalanceSheets");
                 });
 
             modelBuilder.Entity("AccountingApi.Models.Company", b =>
@@ -682,22 +652,6 @@ namespace AccountingApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("AccountingApi.Models.BalanceSheet", b =>
-                {
-                    b.HasOne("AccountingApi.Models.AccountsPlan", "AccountsPlan")
-                        .WithMany("BalanceSheets")
-                        .HasForeignKey("AccountsPlanId");
-
-                    b.HasOne("AccountingApi.Models.Company", "Company")
-                        .WithMany("BalanceSheets")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("AccountingApi.Models.Invoice", "Invoice")
-                        .WithMany("BalanceSheets")
-                        .HasForeignKey("InvoiceId");
-                });
-
             modelBuilder.Entity("AccountingApi.Models.Company", b =>
                 {
                     b.HasOne("AccountingApi.Models.User", "User")
@@ -733,12 +687,12 @@ namespace AccountingApi.Migrations
                         .HasForeignKey("AccountKreditId");
 
                     b.HasOne("AccountingApi.Models.Company", "Company")
-                        .WithMany("Invoices")
+                        .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("AccountingApi.Models.Contragent", "Contragent")
-                        .WithMany("Invoices")
+                        .WithMany()
                         .HasForeignKey("ContragentId");
 
                     b.HasOne("AccountingApi.Models.Tax", "Tax")

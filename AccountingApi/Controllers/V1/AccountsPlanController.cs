@@ -6,11 +6,13 @@ using AccountingApi.Data.Repository.Interface;
 using AccountingApi.Dtos.AccountsPlan;
 using AccountingApi.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingApi.Controllers.V1
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountsPlanController : ControllerBase

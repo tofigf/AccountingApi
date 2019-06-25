@@ -4,14 +4,16 @@ using AccountingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccountingApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190625074150_BalanceSheet")]
+    partial class BalanceSheet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +31,6 @@ namespace AccountingApi.Migrations
                         .HasMaxLength(100);
 
                     b.Property<bool?>("Active");
-
-                    b.Property<string>("Category")
-                        .HasMaxLength(350);
 
                     b.Property<int>("CompanyId");
 

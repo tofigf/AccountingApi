@@ -8,11 +8,13 @@ using AccountingApi.Models;
 using AccountingApi.Models.ViewModel;
 using AutoMapper;
 using EOfficeAPI.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingApi.Controllers.V1
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SettingController : ControllerBase

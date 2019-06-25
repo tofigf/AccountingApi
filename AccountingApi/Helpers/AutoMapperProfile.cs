@@ -4,10 +4,12 @@ using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Nomenklatura.Kontragent;
 using AccountingApi.Dtos.Nomenklatura.Product;
 using AccountingApi.Dtos.Nomenklatura.Worker;
+using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
 using AutoMapper;
+using EOfficeAPI.Dtos.Sale.Invoice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,6 +147,37 @@ namespace AccountingApi.Helpers
             //Put
             CreateMap<ProposalPutDto, Proposal>().ReverseMap();
             CreateMap<ProposalItemPutDto, ProposalItem>().ReverseMap();
+            #endregion
+
+            //Invoice
+            #region Invoice
+            //Post
+            CreateMap<InvoicePostDto, Invoice>().ReverseMap();
+            CreateMap<InvoiceItemPostDto, InvoiceItem>().ReverseMap();
+            //Get
+            CreateMap<Invoice, InvoiceGetDto>().ReverseMap();
+            //get for edit
+            CreateMap<Invoice, InvoiceEditGetDto>()
+                  .ForMember(dto => dto.InvoiceItemGetDtos, opt => opt
+                    .MapFrom(src => src.InvoiceItems.Select(s => new {
+                        ProductName = s.Product.Name,
+                        s.Id,
+                        s.SellPrice,
+                        s.Qty,
+                        s.ProductId,
+                        s.TotalOneProduct,
+                        s.Price
+
+                    })));
+            CreateMap<Company, InvoiceEditGetDto>();
+            CreateMap<Contragent, InvoiceEditGetDto>();
+            CreateMap<Tax, InvoiceEditGetDto>().ReverseMap();
+            CreateMap<AccountsPlan, InvoiceEditGetDto>().ReverseMap();
+
+            CreateMap<InvoiceItem, InvoiceEditGetDto>();
+            //Put
+            CreateMap<InvoicePutDto, Invoice>().ReverseMap();
+            CreateMap<InvoiceItemPutDto, InvoiceItem>().ReverseMap();
             #endregion
 
         }

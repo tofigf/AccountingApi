@@ -9,11 +9,13 @@ using AccountingApi.Helpers.Extentions;
 using AccountingApi.Models;
 using AutoMapper;
 using EOfficeAPI.Helpers.Pagination;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingApi.Controllers.V1
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase

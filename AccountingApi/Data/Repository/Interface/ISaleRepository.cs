@@ -1,5 +1,6 @@
 ﻿using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
+using EOfficeAPI.Dtos.Sale.Invoice;
 using EOfficeAPI.Helpers.Pagination;
 using System;
 using System.Collections.Generic;
@@ -53,5 +54,40 @@ namespace AccountingApi.Data.Repository.Interface
         Task<Proposal> DeleteProposal(int? companyId, int? proposalId);
 
         #endregion
+
+        //Invoice
+        #region Invoice
+        //Post
+        Task<Invoice> CreateInvoice(Invoice invoice, int? companyId);
+        Task<List<InvoiceItem>> CreateInvoiceItems(List<InvoiceItem> items, int? invoiceId);
+        //Get
+        //get all invoice
+        Task<List<InvoiceGetDto>> GetInvoice(PaginationParam productParam, int? companyId);
+        //get for edit invoice by id
+        Task<Invoice> GetDetailInvoice(int? invoiceId, int? companyId);
+
+        Task<Invoice> GetEditInvoice(int? invoiceId, int? companyId);
+        //get for edit invoice by id
+        Task<List<InvoiceItem>> GetEditInvoiceItem(int? invoiceId);
+        Task<Contragent> GetContragentInvoice(int? companyId, int? invoiceId);
+        //Put
+        // edit edit by id
+        Task<Invoice> EditInvoice(Invoice invoice, List<InvoiceItem> invoiceItems, int? invoiceId);
+        //Delete
+        Task<InvoiceItem> DeleteInvoiceItem(int? invoiceItemId);
+        Task<Invoice> DeleteInvoice(int? companyId, int? invoiceId);
+        //Checking
+        Task<bool> CheckInvoice(int? currentUserId, int? companyId);
+        Task<bool> CheckInvoiceProductId(List<InvoiceItem> invoiceItems);
+        Task<bool> CheckInvoiceId(int? invoiceId, int? companyId);
+        Task<bool> CheckInvoiceItem(int? invoiceId, List<InvoiceItem> invoiceItems);
+        //checking exist income
+        //Task<bool> CheckExistIncomeByInvoiceId(int? invoiceId);
+        //Email
+        InvoiceSentMail CreateInvoiceSentMail(int? invoiceId, string email);
+        Invoice GetInvoiceByToken(string token);
+
+        #endregion
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AccountingApi.Data.Repository.Interface;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
+using EOfficeAPI.Dtos.Sale.Invoice;
 using EOfficeAPI.Helpers.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -354,6 +355,490 @@ namespace AccountingApi.Data.Repository
 
         }
         #endregion
+
+        //Invoice
+        #region Invoice
+
+        //Post
+        public async Task<Invoice> CreateInvoice(Invoice invoice, int? companyId)
+        {
+            if (companyId == null)
+                return null;
+            if (invoice.ContragentId == null)
+                return null;
+
+            invoice.CreatedAt = DateTime.UtcNow.AddHours(4);
+            invoice.ResidueForCalc = invoice.TotalPrice;
+
+            if (invoice == null)
+                return null;
+
+            if (DateTime.Now > invoice.EndDate && invoice.TotalPrice == invoice.ResidueForCalc)
+            {
+                invoice.IsPaid = 4;
+            }
+
+            
+            //1=planlinib, 2 = gozlemede,3=odenilib
+            //invoice.IsPaid = 1;
+            invoice.CompanyId = Convert.ToInt32(companyId);
+            await _context.Invoices.AddAsync(invoice);
+            await _context.SaveChangesAsync();
+
+            //AccountPlan
+            AccountsPlan accountDebit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == invoice.AccountDebitId);
+            accountDebit.Debit = invoice.TotalPrice;
+            AccountsPlan accountkredit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == invoice.AccountKreditId);
+            accountkredit.Kredit = invoice.TotalPrice;
+            BalanceSheet balanceSheetDebit = new BalanceSheet
+            {
+                CreatedAt = DateTime.Now,
+                CompanyId = Convert.ToInt32(companyId),
+                DebitMoney = invoice.TotalPrice,
+                AccountsPlanId = invoice.AccountDebitId,
+                InvoiceId = invoice.Id
+            };
+            await _context.BalanceSheets.AddAsync(balanceSheetDebit);
+            BalanceSheet balanceSheetKredit = new BalanceSheet
+            {
+                CreatedAt = DateTime.Now,
+                CompanyId = Convert.ToInt32(companyId),
+                KreditMoney = invoice.TotalPrice,
+                AccountsPlanId = invoice.AccountKreditId,
+                InvoiceId = invoice.Id
+            };
+            await _context.BalanceSheets.AddAsync(balanceSheetKredit);
+            await _context.SaveChangesAsync();
+
+            return invoice;
+        }
+        public async Task<List<InvoiceItem>> CreateInvoiceItems(List<InvoiceItem> items, int? invoiceId)
+        {
+            if (invoiceId == null)
+                return null;
+
+            foreach (var item in items)
+            {
+
+                item.InvoiceId = invoiceId;
+
+                await _context.InvoiceItems.AddAsync(item);
+                await _context.SaveChangesAsync();
+            }
+
+            return items;
+        }
+        //Get
+        //get all invoice
+        public async Task<List<InvoiceGetDto>> GetInvoice(PaginationParam productParam, int? companyId)
+        {
+            if (companyId == null)
+                return null;
+            List<Invoice> invoices = await _context.Invoices.Where(w => w.CompanyId == companyId)
+            .OrderByDescending(d => d.Id).ToListAsync();
+            List<Contragent> contragents = await _context.Contragents
+        .OrderByDescending(d => d.Id).ToListAsync();
+
+            var proposalcon = invoices.Join(contragents, m => m.ContragentId, m => m.Id, (inv, con) => new InvoiceGetDto
+            {
+                ContragentCompanyName = con.CompanyName,
+                InvoiceNumber = inv.InvoiceNumber,
+                TotalPrice = inv.TotalPrice,
+                PreparingDate = inv.PreparingDate,
+                EndDate = inv.EndDate,
+                IsPaid = inv.IsPaid,
+                Id = inv.Id
+            }).ToList();
+
+            return proposalcon;
+        }
+        // detail used in get edit invoice 
+        public async Task<Invoice> GetDetailInvoice(int? invoiceId, int? companyId)
+        {
+            if (invoiceId == null)
+                return null;
+            if (companyId == null)
+                return null;
+
+            Invoice invoice = await _context.Invoices.Include(i => i.Company)
+                .Include(i => i.Tax).Include(i => i.InvoiceItems)
+                .ThenInclude(a => a.Product).Include(i => i.AccountsPlanDebit)
+                .Include(t => t.AccountsPlanKredit)
+                .FirstOrDefaultAsync(f => f.Id == invoiceId && f.CompanyId == companyId);
+
+            return invoice;
+        }
+        //used in update action
+        public async Task<Invoice> GetEditInvoice(int? invoiceId, int? companyId)
+        {
+            if (invoiceId == null)
+                return null;
+            if (companyId == null)
+                return null;
+
+            Invoice invoice = await _context.Invoices.Include(i=>i.AccountsPlanDebit).Include(t=>t.AccountsPlanKredit)
+                .FirstOrDefaultAsync(f => f.Id == invoiceId && f.CompanyId == companyId);
+
+            return invoice;
+        }
+        //used in update action
+        public async Task<List<InvoiceItem>> GetEditInvoiceItem(int? invoiceId)
+        {
+            if (invoiceId == null)
+                return null;
+
+            List<InvoiceItem> invoiceItems = await _context.InvoiceItems.Where(w => w.InvoiceId == invoiceId).AsNoTracking().ToListAsync();
+
+            return invoiceItems;
+        }
+        //get contragent by invoiceid
+        public async Task<Contragent> GetContragentInvoice(int? companyId, int? invoiceId)
+        {
+
+            Contragent contragent = await _context.Contragents.SingleOrDefaultAsync(c => c.CompanyId == companyId &&
+
+          c.Invoices.SingleOrDefault(w => w.Id == invoiceId) != null);
+
+            return contragent;
+        }
+        //Put:
+        public async Task<Invoice> EditInvoice(Invoice invoice, List<InvoiceItem> invoiceItems, int? invoiceId)
+        {
+
+            if (invoiceId == null)
+                return null;
+            if (invoice == null)
+                return null;
+
+            Invoice oldInvoice = await _context.Invoices.FindAsync(invoiceId);
+
+            //Accounting
+            #region Accounting
+            if (oldInvoice.AccountDebitId == invoice.AccountDebitId)
+            {
+                //AccountPlan
+                AccountsPlan accountDebit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == oldInvoice.AccountDebitId);
+                accountDebit.Debit = invoice.TotalPrice;
+                //Balancsheet
+                BalanceSheet balanceSheetDebit = await _context.BalanceSheets.FirstOrDefaultAsync(f => f.AccountsPlanId == oldInvoice.AccountDebitId);
+                balanceSheetDebit.DebitMoney = invoice.TotalPrice;
+                balanceSheetDebit.AccountsPlanId = invoice.AccountDebitId;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                //AccountPlan
+                AccountsPlan oldAccountDebit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == oldInvoice.AccountDebitId);
+                oldAccountDebit.Debit = 0.00;
+                AccountsPlan accountDebit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == invoice.AccountDebitId);
+                accountDebit.Debit = invoice.TotalPrice;
+                //Balancsheet
+                //remove old balancesheet
+                BalanceSheet oldBalanceSheetDebit = await _context.BalanceSheets
+                    .FirstOrDefaultAsync(f => f.InvoiceId == oldInvoice.Id && f.AccountsPlanId == oldInvoice.AccountDebitId);
+                _context.BalanceSheets.Remove(oldBalanceSheetDebit);
+                //new balancesheet
+                BalanceSheet balanceSheetDebit = new BalanceSheet
+                {
+                    CreatedAt = DateTime.Now,
+                    CompanyId = Convert.ToInt32(oldInvoice.CompanyId),
+                    DebitMoney = invoice.TotalPrice,
+                    AccountsPlanId = invoice.AccountDebitId,
+                    InvoiceId = oldInvoice.Id
+                };
+                await _context.BalanceSheets.AddAsync(balanceSheetDebit);
+                await _context.SaveChangesAsync();
+
+            }
+            if (oldInvoice.AccountKreditId == invoice.AccountKreditId)
+            {
+                //AccountPlan
+                AccountsPlan accountkredit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == oldInvoice.AccountKreditId);
+                accountkredit.Kredit = invoice.TotalPrice;
+                //Balancsheet
+                BalanceSheet balanceSheetKredit = await _context.BalanceSheets.FirstOrDefaultAsync(f => f.AccountsPlanId == oldInvoice.AccountKreditId);
+                balanceSheetKredit.KreditMoney = invoice.TotalPrice;
+                balanceSheetKredit.AccountsPlanId = invoice.AccountKreditId;
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                //AccountPlan
+                AccountsPlan oldAccountKredit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == oldInvoice.AccountKreditId);
+                oldAccountKredit.Kredit = 0.00;
+                AccountsPlan accountKredit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == invoice.AccountKreditId);
+                accountKredit.Kredit = invoice.TotalPrice;
+                //Balancsheet
+                //remove old balancesheet
+                BalanceSheet oldBalanceSheetKredit = await _context.BalanceSheets
+                    .FirstOrDefaultAsync(f => f.InvoiceId == oldInvoice.Id && f.AccountsPlanId == oldInvoice.AccountKreditId);
+                _context.BalanceSheets.Remove(oldBalanceSheetKredit);
+                //new balancesheet
+                BalanceSheet balanceSheetKredit = new BalanceSheet
+                {
+                    CreatedAt = DateTime.Now,
+                    CompanyId = Convert.ToInt32(oldInvoice.CompanyId),
+                    KreditMoney = invoice.TotalPrice,
+                    AccountsPlanId = invoice.AccountKreditId,
+                    InvoiceId = oldInvoice.Id
+                };
+                await _context.BalanceSheets.AddAsync(balanceSheetKredit);
+                await _context.SaveChangesAsync();
+
+            }
+
+            #endregion
+
+            var invoiceforpaidmoney = _context.Invoices.Find(invoice.Id);
+            if (DateTime.Now > invoice.EndDate && invoice.TotalPrice == invoice.ResidueForCalc)
+            {
+                invoiceforpaidmoney.IsPaid = 4;
+            }
+            else if (DateTime.Now <= invoice.EndDate && invoice.TotalPrice == invoice.ResidueForCalc)
+            {
+                invoiceforpaidmoney.IsPaid = 1;
+            }
+            else if (DateTime.Now <= invoice.EndDate && invoice.TotalPrice != invoice.ResidueForCalc)
+            {
+                invoiceforpaidmoney.IsPaid = 1;
+            }
+            else if (DateTime.Now > invoice.EndDate && invoice.TotalPrice != invoice.ResidueForCalc)
+            {
+                invoiceforpaidmoney.IsPaid = 1;
+            }
+           await _context.SaveChangesAsync();
+            //update invoice
+            _context.Entry(invoice).State = EntityState.Modified;
+            _context.Entry(invoice).Property(a => a.CompanyId).IsModified = false;
+            //_context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            //Update IncomeItems
+            foreach (var item in invoiceItems.Where(w => w.Id != 0))
+            {
+
+                //InvoiceItem dbInvoiceItem = await _context.InvoiceItems
+                //     .FirstOrDefaultAsync(w => w.InvoiceId == invoiceId && w.Id == item.Id);
+                ////Controller de yoxlamaq lazimdi error qaytarmaq lazimdi eger invocittem id-si  db yoxdusa
+                //if(dbInvoiceItem == null)
+                //{
+                //    return null;
+                //}
+
+                _context.Entry(item).State = EntityState.Modified;
+                _context.Entry(item).Property(a => a.InvoiceId).IsModified = false;
+            }
+            await _context.SaveChangesAsync();
+            foreach (var inv in invoiceItems.Where(w => w.Id == 0))
+            {
+                InvoiceItem invoiceItem = new InvoiceItem
+                {
+
+                    Qty = inv.Qty,
+                    Price = inv.Price,
+                    SellPrice = inv.SellPrice,
+                    TotalOneProduct = inv.TotalOneProduct,
+                    ProductId = inv.ProductId,
+                    InvoiceId = Convert.ToInt32(invoiceId)
+                };
+                _context.InvoiceItems.Add(invoiceItem);
+            }
+            await _context.SaveChangesAsync();
+
+            // find invoiceById for equal totaprice to resdueForCalc.. because of correct calculating
+            var foundinvoice = await _context.Invoices.FindAsync(invoiceId);
+            // for equal
+            foundinvoice.ResidueForCalc = foundinvoice.TotalPrice;
+
+            await _context.SaveChangesAsync();
+
+            // for deleting incomesitems
+            //var IncomeItems = await _context.IncomeItems.Where(f => f.InvoiceId == invoiceId).ToListAsync();
+            // for deleting income
+            //there is bug when deleting income ,invoiceId maybe declared difference  
+            //    var incomes = _context.Incomes.FirstOrDefault(f => f.Id == f.IncomeItems.FirstOrDefault(a => a.InvoiceId == invoiceId).IncomeId);
+
+            //if (IncomeItems.Count > 0)
+            //{
+
+
+            //    foreach (var item in IncomeItems)
+            //    {
+            //        //removing incomeitems
+            //        _context.IncomeItems.Remove(item);
+
+            //        _context.SaveChanges();
+
+            //    }
+            ////remove income
+            //_context.Incomes.Remove(incomes);
+            //_context.SaveChanges();
+
+            //   }
+
+            return invoice;
+
+        }
+        //Check:
+        public async Task<bool> CheckInvoice(int? currentUserId, int? companyId)
+        {
+            if (currentUserId == null)
+                return true;
+            if (companyId == null)
+                return true;
+            if (await _context.Invoices.AnyAsync(a => a.CompanyId == companyId && a.Company.UserId != currentUserId))
+                return true;
+
+            return false;
+        }
+        public async Task<bool> CheckInvoiceProductId(List<InvoiceItem> invoiceItems)
+        {
+            foreach (var p in invoiceItems)
+            {
+                if (await _context.Products.FirstOrDefaultAsync(a => a.Id == p.ProductId) == null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public async Task<bool> CheckInvoiceId(int? productId, int? companyId)
+        {
+            if (companyId == null)
+                return true;
+            if (productId == null)
+                return true;
+            if (await _context.Invoices.AnyAsync(a => a.CompanyId != companyId && a.Id == productId))
+                return true;
+
+            return false;
+        }
+        public async Task<bool> CheckInvoiceItem(int? invoiceId, List<InvoiceItem> invoiceItems)
+        {
+            foreach (var item in invoiceItems.Where(w => w.Id != 0))
+            {
+                InvoiceItem dbInvoiceItem = await _context.InvoiceItems.AsNoTracking()
+                     .FirstOrDefaultAsync(w => w.InvoiceId == invoiceId && w.Id == item.Id);
+
+                if (dbInvoiceItem == null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        //checking exist income
+        //public async Task<bool> CheckExistIncomeByInvoiceId(int? invoiceId)
+        //{
+
+        //    var existIncome = await _context.IncomeItems.FirstOrDefaultAsync(f => f.InvoiceId == invoiceId);
+        //    if (existIncome != null)
+        //        return true;
+
+        //    return false;
+        //}
+        //Delete:DeleteInvoiceItem
+        public async Task<InvoiceItem> DeleteInvoiceItem(int? invoiceItemId)
+        {
+            if (invoiceItemId == null)
+                return null;
+            //InvoicesItems
+            var invoiceItem = await _context.InvoiceItems.Include(i => i.Invoice).FirstOrDefaultAsync(f => f.Id == invoiceItemId);
+
+            if (invoiceItem == null)
+                return null;
+            //Invoice
+            var invoice = _context.Invoices.Include(t => t.Tax).FirstOrDefault(f => f.Id == invoiceItem.Invoice.Id);
+            //New Invoice Sum value
+            invoice.Sum -= invoiceItem.SellPrice * invoiceItem.Qty;
+            //New Invoice TotalTax value
+            invoice.TotalTax = invoice.Sum * invoice.Tax.Rate / 100;
+            //New Invoice TotalPrice value
+            invoice.TotalPrice = invoice.Sum + invoice.TotalTax;
+            //New Invoice ResidueForCalc value
+            invoice.ResidueForCalc = invoice.Sum + invoice.TotalTax;
+
+            _context.SaveChanges();
+            //Remove InvoiceItems
+            _context.InvoiceItems.Remove(invoiceItem);
+
+            await _context.SaveChangesAsync();
+
+            return invoiceItem;
+        }
+        //Delete:DeleteInvoice
+        public async Task<Invoice> DeleteInvoice(int? companyId, int? invoiceId)
+        {
+            if (companyId == null)
+                return null;
+            if (invoiceId == null)
+                return null;
+
+            var invoice = await _context.Invoices.FirstOrDefaultAsync(f => f.Id == invoiceId && f.CompanyId == companyId);
+            if (invoice == null)
+                return null;
+
+            var invoiceItems = await _context.InvoiceItems.Where(w => w.InvoiceId == invoiceId).ToListAsync();
+
+            //var incomeItems = await _context.IncomeItems.Where(w => w.InvoiceId == invoiceId).ToListAsync();
+
+            var invoiceSentMails = await _context.InvoiceSentMails.Where(w => w.InvoiceId == invoiceId).ToListAsync();
+
+
+            if (invoiceItems != null)
+            {
+                _context.InvoiceItems.RemoveRange(invoiceItems);
+            }
+            //if (incomeItems != null)
+            //{
+            //    _context.IncomeItems.RemoveRange(incomeItems);
+
+            //}
+            if (invoiceSentMails != null)
+            {
+                _context.InvoiceSentMails.RemoveRange(invoiceSentMails);
+            }
+
+            _context.Invoices.Remove(invoice);
+
+            await _context.SaveChangesAsync();
+
+            return invoice;
+
+        }
+
+        //Email
+        public InvoiceSentMail CreateInvoiceSentMail(int? invoiceId, string email)
+        {
+            InvoiceSentMail invoiceSent = new InvoiceSentMail
+            {
+                InvoiceId = Convert.ToInt32(invoiceId),
+                Email = email,
+                Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToLongDateString()).Replace('+', 't'),
+
+                //1=planlinib, 2 = gozlemede,3=odenilib
+                IsPaid = 2
+            };
+
+            _context.InvoiceSentMails.Add(invoiceSent);
+            _context.SaveChanges();
+
+            return invoiceSent;
+        }
+        public Invoice GetInvoiceByToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return null;
+
+            Invoice invoice = _context.InvoiceSentMails.Include(a => a.Invoice)
+                .ThenInclude(t => t.InvoiceItems).ThenInclude(a => a.Product).FirstOrDefault(f => f.Token == token).Invoice;
+
+            return invoice;
+        }
+
+        #endregion
+
 
     }
 }

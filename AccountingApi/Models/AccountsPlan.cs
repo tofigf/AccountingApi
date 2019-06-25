@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +17,10 @@ namespace AccountingApi.Models
         public string Name { get; set; }
         public Nullable<bool> Active { get; set; }
         public Nullable<int> Level { get; set; }
+        [MaxLength(350)]
         public string Obeysto { get; set; }
+        [MaxLength(350)]
+        public string Category { get; set; }
         public Nullable<bool> ContraAccount { get; set; }
         public Nullable<double> Debit { get; set; }
         public Nullable<double> Kredit { get; set; }
@@ -24,7 +28,12 @@ namespace AccountingApi.Models
         public int CompanyId { get; set; }
 
         public Company Company { get; set; }
+        [InverseProperty("AccountsPlanDebit")]
+        public virtual ICollection<Invoice> InvoicesDebit { get; set; }
+        [InverseProperty("AccountsPlanKredit")]
+        public virtual ICollection<Invoice> InvoicesKredit { get; set; }
+        public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
 
- 
+
     }
 }

@@ -20,12 +20,14 @@ namespace AccountingApi.Controllers.V1
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _repo;
+        private readonly IAccountsPlanRepository _accountsPlanRepo;
         private readonly IMapper _mapper;
 
-        public UserController(IUserRepository repo, IMapper mapper)
+        public UserController(IUserRepository repo, IMapper mapper,IAccountsPlanRepository accountsPlanRepo)
         {
             _repo = repo;
             _mapper = mapper;
+            _accountsPlanRepo = accountsPlanRepo;
         }
         //Post [baseUrl]/api/user/addcompany
         [HttpPost("addcompany")]
@@ -42,6 +44,7 @@ namespace AccountingApi.Controllers.V1
 
             CompanyGetDto CompanyToGet = _mapper.Map<CompanyGetDto>(CompanyToReturn);
 
+            await _accountsPlanRepo.ImportFromExcel(CompanyToReturn.Id);
             return Ok(CompanyToGet);
         }
         //Get [baseUrl]/api/user/geteditcompany

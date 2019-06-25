@@ -24,8 +24,8 @@ namespace AccountingApi.Dtos.Sale.Invoice
         public int? TaxId { get; set; }
 
         public int? ContragentId { get; set; }
-
-
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
 
 
         //public ICollection<InvoiceItemPostDto> InvoiceItemPostDtos { get; set; }

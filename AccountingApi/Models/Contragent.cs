@@ -41,5 +41,6 @@ namespace AccountingApi.Models
 
         public virtual ICollection<Contragent_Detail> Contragent_Details { get; set; }
         public virtual ICollection<Proposal> Proposals { get; set; }
+        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

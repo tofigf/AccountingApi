@@ -41,7 +41,8 @@ namespace AccountingApi.Data.Repository
                         Name = row.Cell(2).Value.ToString(),
                         Level = Convert.ToInt32(row.Cell(4).Value),
                         Obeysto = row.Cell(5).Value.ToString(),
-                        CompanyId = Convert.ToInt32 (companyId)
+                        CompanyId = Convert.ToInt32 (companyId),
+                        Category = row.Cell(7).Value.ToString(),
                     };
                     _context.AccountsPlans.Add(accountsplan);
                    await _context.SaveChangesAsync();
@@ -64,5 +65,6 @@ namespace AccountingApi.Data.Repository
 
             return accountsPlans;
         }
+
     }
 }

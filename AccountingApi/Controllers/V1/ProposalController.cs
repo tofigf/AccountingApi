@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingApi.Controllers.V1
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProposalController : ControllerBase

@@ -17,12 +17,21 @@ namespace EOfficeAPI.Dtos.Sale.Invoice
         public int? ContragentId { get; set; }
         public int? TaxId { get; set; }
         public double? TaxRate { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
         //company
         public string CompanyCompanyName { get; set; }
         public string CompanyVOEN { get; set; }
         //contragent
         public string ContragentCompanyName { get; set; }
         public string ContragentVoen { get; set; }
+
+        //AccountPlan
+        public string AccountsPlanDebitAccPlanNumber { get; set; }
+        public string AccountsPlanKreditAccPlanNumber { get; set; }
+        public string AccountsPlanDebitName { get; set; }
+        public string AccountsPlanKreditName { get; set; }
+
 
         public ICollection<InvoiceItemGetDto> InvoiceItemGetDtos { get; set; }
 

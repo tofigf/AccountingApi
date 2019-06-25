@@ -22,8 +22,4 @@
     <Folder Include="wwwroot\Uploads\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="wwwroot\Files\Template.xlsx" />
-  </ItemGroup>
-
 </Project>

@@ -10,7 +10,23 @@ namespace AccountingApi.Data
     public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+       
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
 
+            //modelBuilder.Entity<Invoice>()
+            //            .HasRequired(m => m.)
+            //            .WithMany(t => t.HomeMatches)
+            //            .HasForeignKey(m => m.HomeTeamId)
+            //            .WillCascadeOnDelete(false);
+
+            //modelBuilder.Entity<Match>()
+            //            .HasRequired(m => m.GuestTeam)
+            //            .WithMany(t => t.AwayMatches)
+            //            .HasForeignKey(m => m.GuestTeamId)
+            //            .WillCascadeOnDelete(false);
+            base.OnModelCreating(modelBuilder);
+        }
         public DbSet<User> Users { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Tax> Taxes { get; set; }
@@ -25,6 +41,10 @@ namespace AccountingApi.Data
         public DbSet<Proposal> Proposals { get; set; }
         public DbSet<ProposalItem> ProposalItems { get; set; }
         public DbSet<ProposalSentMail> ProposalSentMails { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<InvoiceSentMail> InvoiceSentMails { get; set; }
+        public DbSet<BalanceSheet> BalanceSheets { get; set; }
 
     }
 }
