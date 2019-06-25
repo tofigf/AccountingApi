@@ -65,6 +65,7 @@ namespace AccountingApi.Models
         public virtual ICollection<Product_Unit> Product_Units { get; set; }
         public virtual ICollection<Contragent> Contragents { get; set; }
         public virtual ICollection<AccountsPlan> AccountsPlans { get; set; }
+        public virtual ICollection<Proposal> Proposals { get; set; }
 
 
 

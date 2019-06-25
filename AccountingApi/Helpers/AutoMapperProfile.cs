@@ -122,16 +122,16 @@ namespace AccountingApi.Helpers
             CreateMap<CompanyPutProposalDto, Company>();
 
             //Get
-            CreateMap<Proposal, Dtos.Sale.Proposal.ProposalGetDto>();
+            CreateMap<Proposal, ProposalGetDto>();
             CreateMap<Tax, ProposalEditGetDto>().ReverseMap();
             CreateMap<Proposal, ProposalEditGetDto>()
                        .ForMember(dto => dto.ProposalItemGetDtos, opt => opt
-                    .MapFrom(src => src.ProposalItems.Select(s => new {
+                    .MapFrom(src => src.ProposalItems.Select(s => new
+                    {
                         ProductName = s.Product.Name,
                         s.Id,
                         s.SellPrice,
                         s.Qty,
-                        //s.Taxs,
                         s.ProductId,
                         s.TotalOneProduct,
                         s.Price
@@ -146,6 +146,7 @@ namespace AccountingApi.Helpers
             CreateMap<ProposalPutDto, Proposal>().ReverseMap();
             CreateMap<ProposalItemPutDto, ProposalItem>().ReverseMap();
             #endregion
+
         }
     }
 }

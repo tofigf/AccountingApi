@@ -18,5 +18,19 @@ namespace AccountingApi.Helpers.Extentions
             var res = mapper.Map<TResult>(objects.First());
             return objects.Skip(1).Aggregate(res, (r, obj) => mapper.Map(obj, r));
         }
+
+        //ignore all doesnt use
+        public static IMappingExpression<TSource, TDestination> IgnoreAllNonExisting<TSource, TDestination>(this IMappingExpression<TSource, TDestination> expression)
+        {
+            var sourceType = typeof(TSource);
+            var destinationType = typeof(TDestination);
+            var existingMaps = Mapper.Configuration.GetAllTypeMaps().First(x => x.SourceType.Equals(sourceType)
+                && x.DestinationType.Equals(destinationType));
+            foreach (var property in existingMaps.GetUnmappedPropertyNames())
+            {
+                expression.ForMember(property, opt => opt.Ignore());
+            }
+            return expression;
+        }
     }
 }

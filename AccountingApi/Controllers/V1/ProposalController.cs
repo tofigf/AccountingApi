@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AccountingApi.Data.Repository.Interface;
 using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Sale.Proposal;
+using AccountingApi.Helpers.Extentions;
 using AccountingApi.Models;
 using AccountingApi.Models.ViewModel;
 using AutoMapper;
@@ -114,7 +115,7 @@ namespace AccountingApi.Controllers.V1
         [Route("geteditproposal")]
         public async Task<IActionResult> GetEditProposal([FromHeader]int? proposalId, [FromHeader]int? companyId)
         {
-            //Checking
+            //Check
             #region Check
             int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             if (proposalId == null)

@@ -75,7 +75,10 @@ namespace AccountingApi
             //Url-ni goturmek ucun MyHttpContext classinda middlware yaradiriq app-de de cagiririq. bunu yaziriq ki baseUrl-ni goture bilek
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //autoMapper
-            services.AddAutoMapper(Assembly.GetAssembly(typeof(AutoMapperProfile)));
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddCollectionMappers();
+            });
             //If you have other mapping profiles defined, that profiles will be loaded too
 
             //Repository interface oxutdururuq
@@ -85,6 +88,7 @@ namespace AccountingApi
             services.AddScoped<IPathProvider, PathProvider>();
             services.AddScoped<IAccountsPlanRepository, AccountsPlanRepository>();
             services.AddScoped<ISaleRepository, SaleRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
 
             //JWT servis edirik
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

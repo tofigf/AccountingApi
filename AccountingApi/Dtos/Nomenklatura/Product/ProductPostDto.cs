@@ -17,7 +17,7 @@ namespace AccountingApi.Dtos.Nomenklatura.Product
 
         public bool IsServiceOrProduct { get; set; }
 
-        public int UnitId { get; set; }
+        public int? UnitId { get; set; }
 
         public double? Price { get; set; }
 
