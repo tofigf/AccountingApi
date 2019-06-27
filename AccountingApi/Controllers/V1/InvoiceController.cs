@@ -155,13 +155,6 @@ namespace AccountingApi.Controllers.V1
         public async Task<IActionResult> UpdateInvoice([FromBody] VwInvoicePut invoicePut, [FromHeader]int? invoiceId, [FromHeader]int? companyId)
         {
             Invoice fromRepo = await _repo.GetEditInvoice(invoiceId, companyId);
-
-            List<InvoiceItem> invoiceItemsFromRepo = await _repo.GetEditInvoiceItem(invoiceId);
-
-            Invoice Mapped = _mapper.Map(invoicePut.InvoicePutDto, fromRepo);
-
-            List<InvoiceItem> MapperdInvoiceItems = _mapper.Map(invoicePut.InvoiceItemPutDtos, invoiceItemsFromRepo);
-
             //Check
             #region Check
             int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -172,16 +165,29 @@ namespace AccountingApi.Controllers.V1
             if (fromRepo == null)
                 return StatusCode(409, "[Header]companyId or invoiceId not correct");
             if (await _repo.CheckInvoice(currentUserId, companyId))
-                return Unauthorized();
-            if (await _repo.CheckInvoiceItem(invoiceId, MapperdInvoiceItems))
-                return StatusCode(409, "invoiceItem null");
+                return StatusCode(409, "company id not correct");
+            if (await _repo.CheckInvoiceId(invoiceId, companyId))
+                return StatusCode(409, "invoiceId doesnt exist");
+
             //cheking product id
             //if (await _repo.CheckInvoiceProductId(Mapped.InvoiceItems))
             //    return StatusCode(409, "productId doesnt exist");
             #endregion
+            //Accounting
+            var UpdateAccountDebit = _repo.UpdateAccountDebit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountDebitId);
+            var UpdateAccountKredit = _repo.UpdateAccountKredit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountKreditId);
 
-            //Company
-            //id ye gore sirketi getiririk
+            List<InvoiceItem> invoiceItemsFromRepo = await _repo.GetEditInvoiceItem(invoiceId);
+            Invoice Mapped = _mapper.Map(invoicePut.InvoicePutDto, fromRepo);
+            List<InvoiceItem> MapperdInvoiceItems = _mapper.Map(invoicePut.InvoiceItemPutDtos, invoiceItemsFromRepo);
+
+            //Check
+            if (await _repo.CheckInvoiceItem(invoiceId, MapperdInvoiceItems))
+                return StatusCode(409, "invoiceItem null");
+            //Company Contragent Edit
+            #region Company Contragent Edit
+            // Company
+            //  id ye gore sirketi getiririk
             Company companyFromRepo = await _repo.GetEditCompany(companyId);
             //map edirik
             Company companyForUpdate = _mapper.Map(invoicePut.CompanyPutProposalDto, companyFromRepo);
@@ -197,6 +203,8 @@ namespace AccountingApi.Controllers.V1
             Contragent updatedContragent = await _repo.EditContragent(contragentForUpdate, companyId);
             //qaytaracagimiz info
             CompanyAfterPutDto companyToReturn = _mapper.Map<CompanyAfterPutDto>(updatedCompany);
+
+            #endregion
 
             Invoice invoice = await _repo.EditInvoice(Mapped, MapperdInvoiceItems, invoiceId);
 

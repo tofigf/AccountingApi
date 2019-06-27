@@ -65,6 +65,8 @@ namespace AccountingApi
                     opt.SerializerSettings.ReferenceLoopHandling =
                         Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
+            //Dependency Injection to resolve  DbContext
+            services.AddDbContext<DbContext>(ServiceLifetime.Transient);
             //Globalizaton datetime format
             services.Configure<RequestLocalizationOptions>(options =>
             {

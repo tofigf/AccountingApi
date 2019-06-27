@@ -1,4 +1,5 @@
-﻿using AccountingApi.Dtos.Sale.Proposal;
+﻿using AccountingApi.Dtos.Sale.Invoice;
+using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
 using EOfficeAPI.Dtos.Sale.Invoice;
 using EOfficeAPI.Helpers.Pagination;
@@ -86,8 +87,11 @@ namespace AccountingApi.Data.Repository.Interface
         //Email
         InvoiceSentMail CreateInvoiceSentMail(int? invoiceId, string email);
         Invoice GetInvoiceByToken(string token);
+        //Accounting Update
+        InvoicePutDto UpdateAccountDebit(int? invoiceId, int? companyId, InvoicePutDto invoice, int? OldDebitId);
+       InvoicePutDto UpdateAccountKredit(int? invoiceId, int? companyId, InvoicePutDto invoice, int? OldKeditId);
 
-        #endregion
+            #endregion
 
-    }
+        }
 }
