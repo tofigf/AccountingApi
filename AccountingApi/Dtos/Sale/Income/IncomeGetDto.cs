@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Sale.Income
+namespace AccountingApi.Dtos.Sale.Income
 {
     public class IncomeGetDto
     {

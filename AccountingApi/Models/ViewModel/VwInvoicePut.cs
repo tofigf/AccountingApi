@@ -1,7 +1,6 @@
 ﻿using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Nomenklatura.Kontragent;
 using AccountingApi.Dtos.Sale.Invoice;
-using EOfficeAPI.Dtos.Sale.Invoice;
 using System;
 using System.Collections.Generic;
 using System.Linq;

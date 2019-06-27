@@ -1,7 +1,7 @@
-﻿using AccountingApi.Dtos.Sale.Invoice;
+﻿using AccountingApi.Dtos.Sale.Income;
+using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
-using EOfficeAPI.Dtos.Sale.Invoice;
 using EOfficeAPI.Helpers.Pagination;
 using System;
 using System.Collections.Generic;
@@ -91,7 +91,32 @@ namespace AccountingApi.Data.Repository.Interface
         InvoicePutDto UpdateAccountDebit(int? invoiceId, int? companyId, InvoicePutDto invoice, int? OldDebitId);
        InvoicePutDto UpdateAccountKredit(int? invoiceId, int? companyId, InvoicePutDto invoice, int? OldKeditId);
 
-            #endregion
+        #endregion
 
-        }
+        //Income
+        #region Income
+        //Get
+        List<IncomeInvoiceGetDto> GetInvoiceByContragentId(int? contragentId, int? companyId);
+        Task<List<IncomeGetDto>> GetIncome(PaginationParam productParam, int? companyId);
+        Task<Income> DetailIncome(int? incomeId, int? companyId);
+        Task<Income> GetEditIncome(int? incomeId, int? companyId);
+        Task<List<IncomeItem>> GetEditIncomeItems(int? incomeId);
+        Task<List<IncomeItem>> GetEditAllIncomes(int? invoiceId, int? companyId);
+        Task<Invoice> GetInvoiceIcomeItem(int? companyId, int? invoiceId);
+
+        //Post
+        Task<Income> CreateIncome(int? companyId, int? contagentId, int[] Ids, Income income, List<IncomeItem> incomes);
+        //Put
+        Task<IncomeItem> EditIncome(List<IncomeItem> incomeItems, int? invoiceId);
+        //Cheking
+        Task<bool> CheckIncome(int? currentUserId, int? companyId);
+        Task<bool> CheckIncomeContragentIdInvoiceId(int? contragentId, int? companyId);
+        Task<bool> CheckIncomeEqualingInvoiceTotalPriceForUpdate(List<IncomeItem> incomeItems, int? invoiceId);
+        Task<bool> CheckIncomeEqualingInvoiceTotalPriceForCreate(List<IncomeItem> incomeItems);
+        //Delete
+        Task<IncomeItem> DeleteIncomeItem(int? incomeItem);
+
+        #endregion
+
+    }
 }

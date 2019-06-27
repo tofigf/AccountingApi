@@ -4,12 +4,12 @@ using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Nomenklatura.Kontragent;
 using AccountingApi.Dtos.Nomenklatura.Product;
 using AccountingApi.Dtos.Nomenklatura.Worker;
+using AccountingApi.Dtos.Sale.Income;
 using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
 using AutoMapper;
-using EOfficeAPI.Dtos.Sale.Invoice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -178,6 +178,48 @@ namespace AccountingApi.Helpers
             //Put
             CreateMap<InvoicePutDto, Invoice>().ReverseMap();
             CreateMap<InvoiceItemPutDto, InvoiceItem>().ReverseMap();
+            #endregion
+
+            //Income
+            #region Income
+            //Get
+            CreateMap<Invoice, IncomeInvoiceGetDto>();
+            CreateMap<IncomeItem, IncomeGetDto>();
+            CreateMap<Income, IncomeEditGetDto>()
+                  .ForMember(dto => dto.IncomeItemGetDtos, opt => opt
+                    .MapFrom(src => src.IncomeItems.Select(s => new {
+                        s.IsBank,
+                        s.PaidMoney,
+                        s.Id
+                    })));
+            //https://localhost:44317/api/income/geteditincome
+            //get edit income
+            CreateMap<Invoice, IncomeInvoiceEditGetDto>().ForMember(dto => dto.IncomeItemInvoiceGetDtos, opt => opt
+                    .MapFrom(src => src.IncomeItems.Select(s => new {
+
+                        s.IsBank,
+                        s.PaidMoney,
+                        s.Id,
+                        IncomeCreatedAt = s.Income.CreatedAt,
+                        s.TotalOneInvoice
+                    })));
+
+            CreateMap<IncomeItem, IncomeItemInvoiceGetDto>().ReverseMap();
+            CreateMap<Income, IncomeItemInvoiceGetDto>().ReverseMap();
+
+            CreateMap<IncomeItem, IncomeItemGetDto>().ReverseMap();
+
+            //Post
+            CreateMap<IncomePostDto, Income>();
+            CreateMap<IncomeItemPostDto, IncomeItem>().ReverseMap();
+            CreateMap<IncomeItemGetEditDto, IncomeItem>().ReverseMap();
+
+            //Put
+            CreateMap<IncomePutDto, Income>().ReverseMap();
+            //.ForMember(m => m, opt => opt.Ignore());
+            CreateMap<IncomeItemGetEditDto, IncomeItem>().ReverseMap();
+            //.EqualityComparison((sir, si) => sir.Id == si.Id);
+
             #endregion
 
         }

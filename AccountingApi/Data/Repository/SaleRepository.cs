@@ -1,8 +1,8 @@
 ﻿using AccountingApi.Data.Repository.Interface;
+using AccountingApi.Dtos.Sale.Income;
 using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
-using EOfficeAPI.Dtos.Sale.Invoice;
 using EOfficeAPI.Helpers.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -912,6 +912,400 @@ namespace AccountingApi.Data.Repository
 
         #endregion
 
+        //Income
+        #region InCome
+        //Get 
+        public List<IncomeInvoiceGetDto> GetInvoiceByContragentId(int? contragentId, int? companyId)
+        {
+            if (contragentId == null)
+                return null;
+            List<IncomeInvoiceGetDto> datas = (from inv in _context.Invoices
+                                                   //join itemincome in _context.IncomeItems
+                                                   //on inv.Id equals itemincome.InvoiceId
+                                                   //Left join for take residue in table income
+                                                   //into sr
+                                                   //from x in sr.DefaultIfEmpty()
+                                               where inv.ContragentId == contragentId && inv.CompanyId == companyId && inv.IsPaid != 3
+                                               select new IncomeInvoiceGetDto
+                                               {
+                                                   InvoiceId = inv.Id,
+                                                   InvoiceNumber = inv.InvoiceNumber,
+                                                   TotalPrice = inv.TotalPrice,
+                                                   Residue = inv.ResidueForCalc,
+                                                   PreparingDate = inv.PreparingDate,
+                                                   EndDate = inv.EndDate
+                                               }).ToList();
+            return datas;
+        }
+        public async Task<List<IncomeGetDto>> GetIncome(PaginationParam productParam, int? companyId)
+        {
+            if (companyId == null)
+                return null;
+
+            var incomeItems = await _context.IncomeItems
+
+                    .Include(i => i.Income)
+                    .Include(a => a.Invoice)
+                    .ThenInclude(t => t.Contragent)
+                    .Where(w => w.Income.CompanyId == companyId)
+                    .OrderByDescending(d => d.Id)
+                    .GroupBy(p => p.InvoiceId)
+                    .Select(g => new
+                    {
+                        first = g.First(),
+                        sum = g.Sum(s => s.PaidMoney)
+                    }
+
+                    ).ToListAsync();
+
+            var joinIncome = incomeItems.Select(s => new IncomeGetDto
+            {
+                ContragentCompanyName = s.first.Income.Contragent.CompanyName,
+                ContragentFullname = s.first.Income.Contragent.Fullname,
+                InvoiceNumber = s.first.InvoiceNumber,
+                Id = s.first.Income.Id,
+                IsBank = s.first.IsBank,
+                TotalPrice = s.first.Income.TotalPrice,
+                PaidMoney = s.first.PaidMoney,
+                Residue = s.first.Invoice.ResidueForCalc,
+                CreatedAt = s.first.Income.CreatedAt,
+                //income page mebleg
+                TotalOneInvoice = s.first.TotalOneInvoice,
+                InvoiceId = s.first.InvoiceId,
+                SumPaidMoney = s.sum
+            }).ToList();
+
+            return joinIncome;
+        }
+        //get for editing income
+        public async Task<Income> GetEditIncome(int? incomeId, int? companyId)
+        {
+            if (incomeId == null)
+                return null;
+            if (companyId == null)
+                return null;
+
+            Income income = await _context.Incomes.FirstOrDefaultAsync(f => f.CompanyId == companyId && f.Id == incomeId);
+
+            return income;
+        }
+        public async Task<List<IncomeItem>> GetEditIncomeItems(int? invoiceId)
+        {
+            if (invoiceId == null)
+                return null;
+
+            List<IncomeItem> incomeItems = await _context.IncomeItems.Include(i=>i.AccountsPlanDebit).Include(s=>s.AccountsPlanKredit)
+                .Where(w => w.InvoiceId == invoiceId).AsNoTracking().ToListAsync();
+
+            return incomeItems;
+        }
+
+        //get single income invoices didnt use
+        public async Task<List<IncomeItem>> GetEditAllIncomes(int? companyId, int? invoiceId)
+        {
+            if (invoiceId == null)
+                return null;
+            if (companyId == null)
+                return null;
+
+            var incomeItems = await _context.IncomeItems.Include(i => i.Income)
+                  .Where(f => f.Invoice.CompanyId == companyId && f.InvoiceId == invoiceId).ToListAsync();
+
+            var test = _context.Invoices.Include(i => i.IncomeItems).ThenInclude(t => t.Income).FirstOrDefaultAsync(f => f.Id == invoiceId);
+
+            return incomeItems;
+        }
+        //https://localhost:44317/api/income/geteditincome
+        //get edit income
+        public Task<Invoice> GetInvoiceIcomeItem(int? companyId, int? invoiceId)
+        {
+            if (invoiceId == null)
+                return null;
+            if (companyId == null)
+                return null;
+
+            var invoice = _context.Invoices.Include(i => i.IncomeItems).ThenInclude(t => t.Income).Include(c => c.Contragent)
+                .FirstOrDefaultAsync(f => f.CompanyId == companyId && f.Id == invoiceId);
+            if (invoice == null)
+                return null;
+
+            return invoice;
+        }
+        //get single income detail
+        public async Task<Income> DetailIncome(int? incomeId, int? companyId)
+        {
+            if (incomeId == null)
+                return null;
+
+            Income income = await _context.Incomes.Include(i => i.Contragent).Include(i => i.IncomeItems).FirstOrDefaultAsync(f => f.CompanyId == companyId && f.Id == incomeId);
+
+            return income;
+        }
+        //Post
+        public async Task<Income> CreateIncome(int? companyId, int? contragentId, int[] Ids, Income income, List<IncomeItem> incomes)
+        {
+            if (companyId == null)
+                return null;
+
+            if (contragentId == null)
+                return null;
+
+            income.CreatedAt = DateTime.UtcNow.AddHours(4);
+            income.CompanyId = Convert.ToInt32(companyId);
+            income.ContragentId = Convert.ToInt32(contragentId);
+            await _context.Incomes.AddAsync(income);
+            await _context.SaveChangesAsync();
+
+            //foreach (var id in Ids)
+            //{
+            foreach (var inc in incomes)
+            {
+                //invoice for update IsPaid
+                var invoice = _context.Invoices.Find(inc.InvoiceId);
+
+                if (invoice == null)
+                    return null;
+                if (invoice.ResidueForCalc <= inc.PaidMoney)
+                {
+                    //1=planlinib, 2 = gozlemede,3=odenilib
+                    invoice.IsPaid = 3;
+                }
+
+                else if (invoice.ResidueForCalc > inc.PaidMoney)
+                {
+                    //1=planlinib, 2 = gozlemede,3=odenilib
+                    invoice.IsPaid = 2;
+                }
+                else
+                {
+                    //1=planlinib, 2 = gozlemede,3=odenilib
+                    invoice.IsPaid = 1;
+                }
+                if (inc.PaidMoney != null)
+                {
+                    invoice.ResidueForCalc -= inc.PaidMoney;
+                }
+                _context.SaveChanges();
+
+                inc.IncomeId = income.Id;
+
+                await _context.IncomeItems.AddAsync(inc);
+
+                // }
+
+                //AccountPlan
+                AccountsPlan accountDebit = _context.AccountsPlans.FirstOrDefault(f => f.Id == inc.AccountDebitId);
+                accountDebit.Debit = inc.PaidMoney;
+                _context.SaveChanges();
+                AccountsPlan accountkredit =  _context.AccountsPlans.FirstOrDefault(f => f.Id == inc.AccountKreditId);
+                accountkredit.Kredit = inc.PaidMoney;
+                _context.SaveChanges();
+                BalanceSheet balanceSheetDebit = new BalanceSheet
+                {
+                    CreatedAt = DateTime.Now,
+                    CompanyId = Convert.ToInt32(companyId),
+                    DebitMoney = inc.PaidMoney,
+                    AccountsPlanId = inc.AccountDebitId,
+                    IncomeItemId = inc.Id
+                };
+                _context.BalanceSheets.Add(balanceSheetDebit);
+                _context.SaveChanges();
+                BalanceSheet balanceSheetKredit = new BalanceSheet
+                {
+                    CreatedAt = DateTime.Now,
+                    CompanyId = Convert.ToInt32(companyId),
+                    KreditMoney = inc.PaidMoney,
+                    AccountsPlanId = inc.AccountKreditId,
+                    IncomeItemId = inc.Id
+                };
+                 _context.BalanceSheets.Add(balanceSheetKredit);
+                _context.SaveChanges();
+            }
+            await _context.SaveChangesAsync();
+
+            return income;
+        }
+        //Check
+        public async Task<bool> CheckIncome(int? currentUserId, int? companyId)
+        {
+            if (currentUserId == null)
+                return true;
+            if (companyId == null)
+                return true;
+            if (await _context.Incomes.AnyAsync(a => a.CompanyId == companyId && a.Company.UserId != currentUserId))
+                return true;
+
+            return false;
+        }
+        public async Task<bool> CheckIncomeContragentIdInvoiceId(int? contragentId, int? companyId)
+        {
+            if (contragentId == null)
+                return true;
+
+            if (await _context.Contragents.FirstOrDefaultAsync(a => a.CompanyId == companyId && a.Id == contragentId) == null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        //check invoice total price with paidmoney
+        public async Task<bool> CheckIncomeEqualingInvoiceTotalPriceForUpdate(List<IncomeItem> incomeItems, int? invoiceId)
+        {
+            //total paidmoney
+            double? TotalPaidMoney = 0;
+            foreach (var item in incomeItems)
+            {
+                var incomeItemsForPaidMoney = await _context.Invoices.FirstOrDefaultAsync(f => f.Id == invoiceId);
+                if (incomeItemsForPaidMoney == null)
+                    return true;
+                TotalPaidMoney += item.PaidMoney;
+
+                //checkig totalpaidmoney and totaloneinvoice
+                if (incomeItemsForPaidMoney.TotalPrice < TotalPaidMoney)
+                {
+                    return true;
+                }
+                if (_context.IncomeItems.FirstOrDefault(f => f.Id == item.Id) == null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public async Task<bool> CheckIncomeEqualingInvoiceTotalPriceForCreate(List<IncomeItem> incomeItems)
+        {
+            foreach (var item in incomeItems)
+            {
+                var incomeItemsForPaidMoney = await _context.Invoices.Where(f => f.Id == item.InvoiceId).ToListAsync();
+                if (incomeItemsForPaidMoney == null)
+                    return true;
+                //total paidmoney
+                double? TotalPaidMoney = 0;
+
+                foreach (var incpaid in incomeItemsForPaidMoney)
+                {
+
+                    TotalPaidMoney += item.PaidMoney;
+
+                    //checkig totalpaidmoney and totaloneinvoice
+                    if (incpaid.TotalPrice < TotalPaidMoney)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        //Put
+        //so far stopped this method
+        public async Task<IncomeItem> EditIncome(List<IncomeItem> incomeItems, int? invoiceId)
+        {
+            //Update IncomeItems
+
+            double? sumPaidMoney = incomeItems.Sum(s => s.PaidMoney);
+            foreach (var item in incomeItems)
+            {
+                var invitem = _context.IncomeItems.Find(item.Id);
+
+                invitem.PaidMoney = item.PaidMoney;
+                invitem.IsBank = item.IsBank;
+
+                //invoice for update IsPaid
+                var invoice = _context.Invoices.Find(invoiceId);
+                if (invoice == null)
+                    return null;
+
+                if (invoice.TotalPrice <= sumPaidMoney)
+                {
+                    //1=planlinib, 2 = gozlemede, 3=odenilib
+                    invoice.IsPaid = 3;
+                }
+                else if (invoice.TotalPrice > sumPaidMoney)
+                {
+                    //1=planlinib, 2 = gozlemede, 3=odenilib
+                    invoice.IsPaid = 2;
+                }
+                else
+                {
+                    //1=planlinib, 2 = gozlemede, 3=odenilib
+                    invoice.IsPaid = 1;
+                }
+
+                if (invoice.ResidueForCalc != null)
+                {
+                    invoice.ResidueForCalc = invoice.TotalPrice - sumPaidMoney;
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            return null;
+        }
+        //Delete
+        public async Task<IncomeItem> DeleteIncomeItem(int? incomeItemId)
+        {
+            if (incomeItemId == null)
+                return null;
+            // incomeitem
+            var incomeItem = await _context.IncomeItems.Include(i => i.Invoice)
+             .FirstOrDefaultAsync(f => f.Id == incomeItemId);
+
+            if (incomeItem == null)
+                return null;
+
+            //invoice for update IsPaid
+            var invoice = _context.Invoices.Find(incomeItem.InvoiceId);
+
+            //  deleted  paidmoney sum of residueForCalc   
+            if (invoice.ResidueForCalc != null)
+            {
+                invoice.ResidueForCalc += incomeItem.PaidMoney;
+            }
+
+            //update invoice status
+
+            if (invoice.TotalPrice <= invoice.ResidueForCalc && DateTime.Now > invoice.EndDate)
+            {
+                //1=planlinib, 2 = gozlemede, 3=odenilib,4 odenilmeyib
+                invoice.IsPaid = 4;
+            }
+            else if (invoice.TotalPrice <= invoice.ResidueForCalc && DateTime.Now <= invoice.EndDate)
+            {
+                invoice.IsPaid = 1;
+            }
+            else if (invoice.TotalPrice > invoice.ResidueForCalc)
+            {
+                //1=planlinib, 2 = gozlemede, 3=odenilib,4 odenilmeyib
+                invoice.IsPaid = 2;
+            }
+            else
+            {
+                //1=planlinib, 2 = gozlemede, 3=odenilib,4 odenilmeyib
+                invoice.IsPaid = 3;
+            }
+            //Deleting Income where equal == deleted incomeitem incomeId And incomeItems Count equal 1
+            var income = _context.Incomes.Include(d => d.IncomeItems).FirstOrDefault(f => f.Id == incomeItem.IncomeId);
+            if (income.IncomeItems.Count() == 1)
+            {
+                //first deleting incomeItems
+                _context.IncomeItems.Remove(incomeItem);
+                await _context.SaveChangesAsync();
+                //than deleting income
+                _context.Incomes.Remove(income);
+                await _context.SaveChangesAsync();
+
+                return incomeItem;
+            }
+
+            //deleting incomeItem without income
+            _context.IncomeItems.Remove(incomeItem);
+            await _context.SaveChangesAsync();
+
+            return incomeItem;
+        }
+        #endregion
 
     }
 }

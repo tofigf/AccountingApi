@@ -4,14 +4,16 @@ using AccountingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccountingApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190627134339_IncomeItemDate")]
+    partial class IncomeItemDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,8 +72,6 @@ namespace AccountingApi.Migrations
 
                     b.Property<double?>("DebitMoney");
 
-                    b.Property<int?>("IncomeItemId");
-
                     b.Property<int?>("InvoiceId");
 
                     b.Property<double?>("KreditMoney");
@@ -81,8 +81,6 @@ namespace AccountingApi.Migrations
                     b.HasIndex("AccountsPlanId");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("IncomeItemId");
 
                     b.HasIndex("InvoiceId");
 
@@ -293,8 +291,7 @@ namespace AccountingApi.Migrations
 
                     b.Property<int>("InvoiceId");
 
-                    b.Property<string>("InvoiceNumber")
-                        .HasMaxLength(300);
+                    b.Property<string>("InvoiceNumber");
 
                     b.Property<bool>("IsBank");
 
@@ -761,10 +758,6 @@ namespace AccountingApi.Migrations
                         .WithMany("BalanceSheets")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("AccountingApi.Models.IncomeItem", "IncomeItem")
-                        .WithMany("BalanceSheets")
-                        .HasForeignKey("IncomeItemId");
 
                     b.HasOne("AccountingApi.Models.Invoice", "Invoice")
                         .WithMany("BalanceSheets")

@@ -11,7 +11,6 @@ using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
 using AutoMapper;
-using EOfficeAPI.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

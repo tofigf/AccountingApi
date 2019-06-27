@@ -28,10 +28,16 @@ namespace AccountingApi.Models
         public int CompanyId { get; set; }
 
         public Company Company { get; set; }
+
         [InverseProperty("AccountsPlanDebit")]
         public virtual ICollection<Invoice> InvoicesDebit { get; set; }
         [InverseProperty("AccountsPlanKredit")]
         public virtual ICollection<Invoice> InvoicesKredit { get; set; }
+
+        [InverseProperty("AccountsPlanDebit")]
+        public virtual ICollection<IncomeItem> IncomeItemsDebit { get; set; }
+        [InverseProperty("AccountsPlanKredit")]
+        public virtual ICollection<IncomeItem> IncomeItemsKredit { get; set; }
         public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
 
 

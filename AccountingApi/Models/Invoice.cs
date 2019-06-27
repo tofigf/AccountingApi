@@ -36,6 +36,7 @@ namespace AccountingApi.Models
         public virtual Company Company { get; set; }
         public virtual Contragent Contragent { get; set; }
         public virtual Tax Tax { get; set; }
+
         [ForeignKey("AccountDebitId")]
         public virtual AccountsPlan AccountsPlanDebit { get; set; }
         [ForeignKey("AccountKreditId")]
@@ -43,5 +44,6 @@ namespace AccountingApi.Models
         public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
         public virtual ICollection<InvoiceSentMail> InvoiceSentMails { get; set; }
         public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
+        public virtual ICollection<IncomeItem> IncomeItems { get; set; }
     }
 }

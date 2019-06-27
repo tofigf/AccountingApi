@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Sale.Invoice
+namespace AccountingApi.Dtos.Sale.Invoice
 {
     public class InvoiceEditGetDto
     {

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Sale.Income
+namespace AccountingApi.Dtos.Sale.Income
 {
     public class IncomeEditGetDto
     {

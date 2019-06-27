@@ -4,14 +4,16 @@ using AccountingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccountingApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190627125400_Income")]
+    partial class Income
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,8 +72,6 @@ namespace AccountingApi.Migrations
 
                     b.Property<double?>("DebitMoney");
 
-                    b.Property<int?>("IncomeItemId");
-
                     b.Property<int?>("InvoiceId");
 
                     b.Property<double?>("KreditMoney");
@@ -81,8 +81,6 @@ namespace AccountingApi.Migrations
                     b.HasIndex("AccountsPlanId");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("IncomeItemId");
 
                     b.HasIndex("InvoiceId");
 
@@ -283,18 +281,11 @@ namespace AccountingApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AccountDebitId");
-
-                    b.Property<int?>("AccountKreditId");
-
-                    b.Property<DateTime?>("Date");
-
                     b.Property<int>("IncomeId");
 
                     b.Property<int>("InvoiceId");
 
-                    b.Property<string>("InvoiceNumber")
-                        .HasMaxLength(300);
+                    b.Property<string>("InvoiceNumber");
 
                     b.Property<bool>("IsBank");
 
@@ -305,10 +296,6 @@ namespace AccountingApi.Migrations
                     b.Property<double?>("TotalOneInvoice");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountDebitId");
-
-                    b.HasIndex("AccountKreditId");
 
                     b.HasIndex("IncomeId");
 
@@ -762,10 +749,6 @@ namespace AccountingApi.Migrations
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("AccountingApi.Models.IncomeItem", "IncomeItem")
-                        .WithMany("BalanceSheets")
-                        .HasForeignKey("IncomeItemId");
-
                     b.HasOne("AccountingApi.Models.Invoice", "Invoice")
                         .WithMany("BalanceSheets")
                         .HasForeignKey("InvoiceId");
@@ -810,14 +793,6 @@ namespace AccountingApi.Migrations
 
             modelBuilder.Entity("AccountingApi.Models.IncomeItem", b =>
                 {
-                    b.HasOne("AccountingApi.Models.AccountsPlan", "AccountsPlanDebit")
-                        .WithMany("IncomeItemsDebit")
-                        .HasForeignKey("AccountDebitId");
-
-                    b.HasOne("AccountingApi.Models.AccountsPlan", "AccountsPlanKredit")
-                        .WithMany("IncomeItemsKredit")
-                        .HasForeignKey("AccountKreditId");
-
                     b.HasOne("AccountingApi.Models.Income", "Income")
                         .WithMany("IncomeItems")
                         .HasForeignKey("IncomeId")

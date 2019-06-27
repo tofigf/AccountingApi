@@ -18,10 +18,12 @@ namespace AccountingApi.Models
         public int CompanyId { get; set; }
         public int? AccountsPlanId { get; set; }
         public int? InvoiceId { get; set; }
+        public int? IncomeItemId { get; set; }
 
         public virtual Company Company { get; set; }
         public virtual  AccountsPlan AccountsPlan { get; set; }
         public virtual Invoice Invoice { get; set; }
+        public virtual IncomeItem IncomeItem { get; set; }
 
     }
 }

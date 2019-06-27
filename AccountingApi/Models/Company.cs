@@ -68,6 +68,7 @@ namespace AccountingApi.Models
         public virtual ICollection<Proposal> Proposals { get; set; }
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
+        public virtual ICollection<Income> Incomes { get; set; }
 
 
 

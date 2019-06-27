@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EOfficeAPI.Dtos.Sale.Income
+namespace AccountingApi.Dtos.Sale.Income
 {
     public class IncomeItemGetDto
     {
@@ -14,5 +14,7 @@ namespace EOfficeAPI.Dtos.Sale.Income
         public bool IsBank { get; set; }
         public double? PaidMoney { get; set; }
         public int? InvoiceId { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
     }
 }
