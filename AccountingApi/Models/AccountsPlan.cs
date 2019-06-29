@@ -40,6 +40,16 @@ namespace AccountingApi.Models
         public virtual ICollection<IncomeItem> IncomeItemsKredit { get; set; }
         public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
 
+        [InverseProperty("AccountsPlanDebit")]
+        public virtual ICollection<ExpenseInvoice> ExpenseInvoicesDebit { get; set; }
+        [InverseProperty("AccountsPlanKredit")]
+        public virtual ICollection<ExpenseInvoice> ExpenseInvoicesKredit { get; set; }
+
+        [InverseProperty("AccountsPlanDebit")]
+        public virtual ICollection<ExpenseItem> ExpenseItemsDebit { get; set; }
+        [InverseProperty("AccountsPlanKredit")]
+        public virtual ICollection<ExpenseItem> ExpenseItemsKredit { get; set; }
+
 
     }
 }

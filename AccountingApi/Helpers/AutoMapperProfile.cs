@@ -184,14 +184,20 @@ namespace AccountingApi.Helpers
             #region Income
             //Get
             CreateMap<Invoice, IncomeInvoiceGetDto>();
-            CreateMap<IncomeItem, IncomeGetDto>();
+            CreateMap<IncomeItem, IncomeGetDto>().ReverseMap();
             CreateMap<Income, IncomeEditGetDto>()
                   .ForMember(dto => dto.IncomeItemGetDtos, opt => opt
                     .MapFrom(src => src.IncomeItems.Select(s => new {
                         s.IsBank,
                         s.PaidMoney,
-                        s.Id
-                    })));
+                        s.Id,
+                        s.AccountDebitId,
+                        s.AccountKreditId,
+                        s.InvoiceNumber,
+                        s.Residue,
+                        s.InvoiceId,
+                        s.TotalOneInvoice
+                    }).ToList()));
             //https://localhost:44317/api/income/geteditincome
             //get edit income
             CreateMap<Invoice, IncomeInvoiceEditGetDto>().ForMember(dto => dto.IncomeItemInvoiceGetDtos, opt => opt
@@ -201,7 +207,10 @@ namespace AccountingApi.Helpers
                         s.PaidMoney,
                         s.Id,
                         IncomeCreatedAt = s.Income.CreatedAt,
-                        s.TotalOneInvoice
+                        s.TotalOneInvoice,
+                        s.AccountDebitId,
+                        s.AccountKreditId,
+                        s.Date
                     })));
 
             CreateMap<IncomeItem, IncomeItemInvoiceGetDto>().ReverseMap();
@@ -212,7 +221,7 @@ namespace AccountingApi.Helpers
             //Post
             CreateMap<IncomePostDto, Income>();
             CreateMap<IncomeItemPostDto, IncomeItem>().ReverseMap();
-            CreateMap<IncomeItemGetEditDto, IncomeItem>().ReverseMap();
+            CreateMap<IncomeItem,IncomeItemGetEditDto>().ReverseMap();
 
             //Put
             CreateMap<IncomePutDto, Income>().ReverseMap();

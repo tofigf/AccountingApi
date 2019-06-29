@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace AccountingApi.Dtos.Sale.Income
+namespace AccountingApi.Dtos.Purchase.Expense
 {
-    public class IncomeGetDto
+    public class ExpenseGetDto
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string InvoiceNumber { get; set; }
+        public string ExpenseInvoiceNumber { get; set; }
         //contragent
         public string ContragentCompanyName { get; set; }
         public string ContragentFullname { get; set; }
@@ -21,8 +18,5 @@ namespace AccountingApi.Dtos.Sale.Income
         public double? SumPaidMoney { get; set; }
 
         public double? TotalOneInvoice { get; set; }
-        public DateTime? Date { get; set; }
-        public int? AccountDebitId { get; set; }
-        public int? AccountKreditId { get; set; }
     }
 }

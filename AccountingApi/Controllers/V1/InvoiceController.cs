@@ -63,6 +63,9 @@ namespace AccountingApi.Controllers.V1
                 return StatusCode(409, "contragentId null");
             if (await _repo.CheckContragentId(mappedInvoice.ContragentId, companyId))
                 return StatusCode(409, "contragentId doesnt exist");
+            if (_repo.CheckInvoiceNegativeValue(mappedInvoice, mappeditemInvoice))
+                return StatusCode(428, "negative value is detected");
+
             #endregion
 
             //creating repo 
@@ -155,6 +158,10 @@ namespace AccountingApi.Controllers.V1
         public async Task<IActionResult> UpdateInvoice([FromBody] VwInvoicePut invoicePut, [FromHeader]int? invoiceId, [FromHeader]int? companyId)
         {
             Invoice fromRepo = await _repo.GetEditInvoice(invoiceId, companyId);
+            List<InvoiceItem> invoiceItemsFromRepo = await _repo.GetEditInvoiceItem(invoiceId);
+
+            Invoice Mapped = _mapper.Map(invoicePut.InvoicePutDto, fromRepo);
+            List<InvoiceItem> MapperdInvoiceItems = _mapper.Map(invoicePut.InvoiceItemPutDtos, invoiceItemsFromRepo);
             //Check
             #region Check
             int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -168,18 +175,17 @@ namespace AccountingApi.Controllers.V1
                 return StatusCode(409, "company id not correct");
             if (await _repo.CheckInvoiceId(invoiceId, companyId))
                 return StatusCode(409, "invoiceId doesnt exist");
+            if (_repo.CheckInvoiceNegativeValue(Mapped, MapperdInvoiceItems))
+                return StatusCode(428, "negative value is detected");
 
             //cheking product id
             //if (await _repo.CheckInvoiceProductId(Mapped.InvoiceItems))
             //    return StatusCode(409, "productId doesnt exist");
             #endregion
             //Accounting
-            var UpdateAccountDebit = _repo.UpdateAccountDebit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountDebitId);
-            var UpdateAccountKredit = _repo.UpdateAccountKredit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountKreditId);
+            var UpdateAccountDebit = _repo.UpdateInvoiceAccountDebit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountDebitId);
+            var UpdateAccountKredit = _repo.UpdateInvoiceAccountKredit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountKreditId);
 
-            List<InvoiceItem> invoiceItemsFromRepo = await _repo.GetEditInvoiceItem(invoiceId);
-            Invoice Mapped = _mapper.Map(invoicePut.InvoicePutDto, fromRepo);
-            List<InvoiceItem> MapperdInvoiceItems = _mapper.Map(invoicePut.InvoiceItemPutDtos, invoiceItemsFromRepo);
 
             //Check
             if (await _repo.CheckInvoiceItem(invoiceId, MapperdInvoiceItems))
@@ -246,16 +252,16 @@ namespace AccountingApi.Controllers.V1
             return Ok(ToReturn);
         }
         [Authorize]
-        //Get [baseUrl]/api/invoice/existincome
-        //[HttpGet]
-        //[Route("existincome")]
-        //public async Task<bool> ExistIncome([FromHeader] int? invoiceId)
-        //{
-        //    if (await _repo.CheckExistIncomeByInvoiceId(invoiceId))
-        //        return true;
+        //Get[baseUrl]/api/invoice/existincome
+       [HttpGet]
+       [Route("existincome")]
+        public async Task<bool> ExistIncome([FromHeader] int? invoiceId)
+        {
+            if (await _repo.CheckExistIncomeByInvoiceId(invoiceId))
+                return true;
 
-        //    return false;
-        //}
+            return false;
+        }
         //Delete [baseUrl]/api/invoice/deleteinvoiceitem
         [HttpDelete]
         [Route("deleteinvoiceitem")]

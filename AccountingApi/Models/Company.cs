@@ -69,8 +69,8 @@ namespace AccountingApi.Models
         public virtual ICollection<Invoice> Invoices { get; set; }
         public virtual ICollection<BalanceSheet> BalanceSheets { get; set; }
         public virtual ICollection<Income> Incomes { get; set; }
-
-
+        public virtual ICollection<Expense> Expenses { get; set; }
+        public virtual ICollection<ExpenseInvoice> ExpenseInvoices { get; set; }
 
     }
 }

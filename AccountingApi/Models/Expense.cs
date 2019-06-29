@@ -6,23 +6,21 @@ using System.Threading.Tasks;
 
 namespace AccountingApi.Models
 {
-    public class Tax
+    public class Expense
     {
         [Key]
         public int Id { get; set; }
-
-        [MaxLength(75)]
-        public string Name { get; set; }
-
-        public double Rate { get; set; }
-
+        //paid money total
+        public double? TotalPrice { get; set; }
+        public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; } = false;
 
         public int CompanyId { get; set; }
+        public int ContragentId { get; set; }
 
+        public virtual Contragent Contragent { get; set; }
         public virtual Company Company { get; set; }
-        public virtual ICollection<Proposal> Proposals { get; set; }
-        public virtual ICollection<Invoice> Invoices { get; set; }
-        public virtual ICollection<ExpenseInvoice> ExpenseInvoices { get; set; }
+
+        public virtual ICollection<ExpenseItem> ExpenseItems { get; set; }
     }
 }

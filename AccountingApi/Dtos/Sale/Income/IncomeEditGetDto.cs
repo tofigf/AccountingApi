@@ -14,6 +14,7 @@ namespace AccountingApi.Dtos.Sale.Income
         public string ContragentCompanyName { get; set; }
         public string ContragentFullname { get; set; }
         public double? TotalPrice { get; set; }
+
         public ICollection<IncomeItemGetDto> IncomeItemGetDtos { get; set; }
 
         public IncomeEditGetDto()
@@ -22,3 +23,5 @@ namespace AccountingApi.Dtos.Sale.Income
         }
     }
 }
+
+

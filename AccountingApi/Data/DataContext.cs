@@ -47,6 +47,10 @@ namespace AccountingApi.Data
         public DbSet<BalanceSheet> BalanceSheets { get; set; }
         public DbSet<Income> Incomes { get; set; }
         public DbSet<IncomeItem> IncomeItems { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<ExpenseInvoice> ExpenseInvoices { get; set; }
+        public DbSet<ExpenseInvoiceItem> ExpenseInvoiceItems { get; set; }
+        public DbSet<ExpenseItem> ExpenseItems { get; set; }
 
     }
 }

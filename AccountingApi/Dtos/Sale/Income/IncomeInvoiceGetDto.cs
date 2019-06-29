@@ -13,6 +13,8 @@ namespace AccountingApi.Dtos.Sale.Income
         public double? Residue { get; set; }
         public DateTime? PreparingDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
 
     }
 }

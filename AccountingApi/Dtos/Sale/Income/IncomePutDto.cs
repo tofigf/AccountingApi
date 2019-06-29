@@ -10,9 +10,9 @@ namespace AccountingApi.Dtos.Sale.Income
     {
         public double? TotalPrice { get; set; }
 
-     
+
         //public ICollection<IncomeItemGetEditDto> IncomeItemGetEditDtos { get; set; }
-   
+
 
         //public IncomePutDto()
         //{

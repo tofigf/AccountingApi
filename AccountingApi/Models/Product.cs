@@ -33,5 +33,6 @@ namespace AccountingApi.Models
         public virtual Company Company { get; set; }
 
         public virtual ICollection<Stock> Stocks { get; set; }
+        public virtual ICollection<ExpenseInvoiceItem> ExpenseInvoices { get; set; }
     }
 }

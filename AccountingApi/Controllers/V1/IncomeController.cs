@@ -141,6 +141,8 @@ namespace AccountingApi.Controllers.V1
             // id-sinin olmasini yoxlayiriq.
             if (await _repo.CheckIncomeContragentIdInvoiceId(contragentId, companyId))
                 return StatusCode(409, "contragentId  doesnt exist");
+            if (_repo.CheckIncomeNegativeValue(mappedIncome, mappedIncomeItem))
+                return StatusCode(428, "negative value is detected");
 
             #endregion
 
@@ -151,36 +153,52 @@ namespace AccountingApi.Controllers.V1
         //Put [baseUrl]/api/income/updateincome
         [HttpPut]
         [Route("updateincome")]
-        public async Task<IActionResult> UpdateIncome(VwIncomePut incomePut, [FromHeader] int? companyId, [FromHeader] int? incomeId, [FromHeader] int? invoiceId)
+        public async Task<IActionResult> UpdateIncome(VwIncomePut incomePut, [FromHeader] int? companyId, [FromHeader] int? incomeId)
         {
             //Get edit income
             //didnt use yet
             Income fromRepo = await _repo.GetEditIncome(incomeId, companyId);
             //Get edit incomeitems
-            List<IncomeItem> incomeItems = await _repo.GetEditIncomeItems(invoiceId);
-            //Checking
+            List<IncomeItem> incomeItemsRepo = await _repo.GetEditIncomeItems(incomeId);
+            //mapping income
+            Income Mapped = _mapper.Map(incomePut.IncomePutDto, fromRepo);
+
+            //mapping incomeitems
+            //doesnt work correctly
+            List<IncomeItem> incomeItemsMapped = _mapper.Map(incomePut.IncomeItemGetEditDtos, incomeItemsRepo);
+
+            //Check:
             #region Check
             int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             if (companyId == null)
                 return StatusCode(409, "companyId null");
             if (currentUserId == null)
                 return Unauthorized();
+            if (incomePut.IncomeItemGetEditDtos == null)
+                return StatusCode(409, "incomeitems null");
             if (await _repo.CheckIncome(currentUserId, companyId))
                 return Unauthorized();
-            //checkig totalpaidmoney and totaloneinvoice
+            if (await _repo.CheckIncomeEqualingInvoiceTotalPriceForUpdate(incomePut.IncomeItemGetEditDtos))
+                return StatusCode(411, "paidmoney big than totalmoney or that invoice  doesn't exist");
+            if (_repo.CheckIncomeNegativeValue(Mapped, incomeItemsMapped))
+                return StatusCode(428, "negative value is detected");
 
             #endregion
 
-            //mapping income
-            Income Mapped = _mapper.Map(incomePut.IncomePutDto, fromRepo);
 
-            //mapping incomeitems
-            List<IncomeItem> incomeItemsMapped = _mapper.Map(incomePut.IncomeItemGetEditDtos, incomeItems);
+            if (incomeItemsRepo.Count() == 0)
+            {
+                return StatusCode(409, "incomeId doesnt correct");
+            }
 
-            if (await _repo.CheckIncomeEqualingInvoiceTotalPriceForUpdate(incomeItemsMapped, invoiceId))
-                return StatusCode(411, "paidmoney big than totalmoney or that invoice  doesn't exist");
+            //Accounting
+            var UpdateAccountDebit = _repo.UpdateIncomeAccountDebit(companyId, incomePut.IncomeItemGetEditDtos);
+            var UpdateAccountKredit = _repo.UpdateIncomeAccountKredit(companyId, incomePut.IncomeItemGetEditDtos);
+
+           
+
             //Put income and inomeitems
-            var income = await _repo.EditIncome(incomeItemsMapped, invoiceId);
+            var income = await _repo.EditIncome(incomeItemsRepo, incomePut.IncomeItemGetEditDtos);
 
             return Ok();
 
