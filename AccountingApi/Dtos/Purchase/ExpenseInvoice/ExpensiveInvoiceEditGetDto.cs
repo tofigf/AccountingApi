@@ -17,6 +17,8 @@ namespace AccountingApi.Dtos.Purchase.ExpenseInvoice
         public int? ContragentId { get; set; }
         public int? TaxId { get; set; }
         public double? TaxRate { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
         //company
         public string CompanyCompanyName { get; set; }
         public string CompanyVOEN { get; set; }

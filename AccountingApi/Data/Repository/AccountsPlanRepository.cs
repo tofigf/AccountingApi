@@ -1,5 +1,6 @@
 ﻿using AccountingApi.Data.Repository.Interface;
 using AccountingApi.Models;
+using AccountingApi.Models.ProcudureDto;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -65,6 +66,14 @@ namespace AccountingApi.Data.Repository
 
             return accountsPlans;
         }
+        //BalanceSheet
+        public async Task<List<BalanceSheetDto>> BalanceSheet(int? companyId, DateTime? startDate, DateTime? endDate)
+        {
+            var balanceSheetQuery = await _context.BalanceSheetDtos
+             .FromSql("exec Balance {0},{1},{2}",
+             companyId,startDate,endDate).ToListAsync();
 
+            return balanceSheetQuery;
+        }
     }
 }

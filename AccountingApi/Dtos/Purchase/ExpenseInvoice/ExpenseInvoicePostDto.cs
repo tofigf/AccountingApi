@@ -15,14 +15,13 @@ namespace AccountingApi.Dtos.Purchase.ExpenseInvoice
         public double? TotalPrice { get; set; }
         public double? TotalTax { get; set; }
         public double? Sum { get; set; }
-
         public string Desc { get; set; }
 
         public int? ContragentId { get; set; }
-
         public int CompanyId { get; set; }
-
         public int? TaxId { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
 
         public ICollection<ExpenseInvoiceItemPostDto> ExpenseInvoiceItemPostDtos { get; set; }
 

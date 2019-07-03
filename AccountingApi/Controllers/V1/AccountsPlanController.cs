@@ -25,15 +25,19 @@ namespace AccountingApi.Controllers.V1
             _repo = repo;
             _mapper = mapper;
         }
+
         //Get [baseUrl]/api/accountsplan/accountplanimportfromexcel
         [HttpGet]
         [Route("accountplanimportfromexcel")]
         public async Task<IActionResult> AccountPlanImportFromExcel([FromHeader] int? companyId)
         {
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
            await   _repo.ImportFromExcel(companyId);
 
             return Ok();
         }
+
         //Get [baseUrl]/api/accountsplan/getaccountsplan
         [HttpGet]
         [Route("getaccountsplan")]
@@ -50,5 +54,22 @@ namespace AccountingApi.Controllers.V1
 
             return Ok (accountsToReturn);
         }
+
+        //Get [baseUrl]/api/accountsplan/balancesheet
+        [HttpGet]
+        [Route("balancesheet")]
+        public async Task<IActionResult> BalanceSheet([FromHeader] int? companyId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
+
+            var balance = await _repo.BalanceSheet(companyId, startDate, endDate);
+            if(balance == null)
+            {
+                return StatusCode(409,"object null");
+            }
+            return Ok(balance);
+        }
+
     }
 }

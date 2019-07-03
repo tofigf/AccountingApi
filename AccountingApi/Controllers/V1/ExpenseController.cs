@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AccountingApi.Data.Repository.Interface;
@@ -30,6 +31,7 @@ namespace EOfficeAPI.Controllers.V1
             _mapper = mapper;
             _saleRepo = saleRepo;
         }
+
         //ExpenseInvoice
         #region ExpenseInvoice
         //Post [baseUrl]/api/expense/addexpenseinvoice
@@ -57,6 +59,8 @@ namespace EOfficeAPI.Controllers.V1
                 return StatusCode(409, "contragentId null");
             if (await _saleRepo.CheckContragentId(mappedInvoice.ContragentId, companyId))
                 return StatusCode(409, "contragentId doesnt exist");
+            if (_repo.CheckInvoiceNegativeValue(mappedInvoice, mappeditemInvoice))
+                return StatusCode(428, "negative value is detected");
             #endregion
             //creating repo 
             var invoiceToReturn = await _repo.CreateInvoice(mappedInvoice, companyId);
@@ -160,10 +164,19 @@ namespace EOfficeAPI.Controllers.V1
                 return Unauthorized();
             if (await _repo.CheckExpenseInvoice(currentUserId, companyId))
                 return Unauthorized();
+            if (_repo.CheckInvoiceNegativeValue(Mapped, MapperdInvoiceItems))
+                return StatusCode(428, "negative value is detected");
+            if (await _repo.CheckExpenseInvoiceItem(invoiceId, MapperdInvoiceItems))
+                return StatusCode(409, "invoiceItem not correct");
             //cheking product id
             //if (await _repo.CheckExpenseInvoiceProductId(mappeditemInvoice))
             //    return StatusCode(409, "productId doesnt exist");
             #endregion
+
+            //Accounting
+            var UpdateAccountDebit = _repo.UpdateInvoiceAccountDebit(invoiceId, companyId, proposalPut.ExpenseInvoicePutDto, fromRepo.AccountDebitId);
+            var UpdateAccountKredit = _repo.UpdateInvoiceAccountKredit(invoiceId, companyId, proposalPut.ExpenseInvoicePutDto, fromRepo.AccountKreditId);
+
             //Company Contragent Edit
             #region Company Contragent Edit
             //Company
@@ -187,9 +200,7 @@ namespace EOfficeAPI.Controllers.V1
 
             ExpenseInvoice invoice = await _repo.EditInvoice(Mapped, MapperdInvoiceItems, invoiceId);
 
-            return Ok(invoice);
-
-      
+            return Ok();
         }
         //Delete [baseUrl]/api/expense/deleteexpenseinvoiceitem
         [HttpDelete]
@@ -269,6 +280,13 @@ namespace EOfficeAPI.Controllers.V1
         [Route("createexpense")]
         public async Task<IActionResult> CreateExpense([FromHeader] int? companyId, [FromHeader] int? contragentId, [FromBody]VwCreateExpense createExpense)
         {
+            //mapped expense
+            var mappedExpese = _mapper.Map<Expense>(createExpense.ExpensePostDto);
+            //mapped incomeitems
+            var mappedExpenseItem = _mapper.Map<List<ExpenseItem>>(createExpense.ExpenseItemPostDtos);
+
+            //Check:
+            #region Check
             if (companyId == null)
                 return StatusCode(409, "companyId null");
             if (contragentId == null)
@@ -277,14 +295,6 @@ namespace EOfficeAPI.Controllers.V1
                 return StatusCode(409, "ExpensePostDto null");
             if (createExpense.ExpenseItemPostDtos == null)
                 return StatusCode(409, "ExpenseItemPostDtos null");
-
-            //mapped expense
-            var mappedExpese = _mapper.Map<Expense>(createExpense.ExpensePostDto);
-            //mapped incomeitems
-            var mappedExpenseItem = _mapper.Map<List<ExpenseItem>>(createExpense.ExpenseItemPostDtos);
-
-            //Checking
-            #region Check
             //checking incomeitems paidmoney big than invoice total price  
             if (await _repo.CheckExpenseEqualingInvoiceTotalPriceForCreate(mappedExpenseItem))
                 return StatusCode(411, "paidmoney big than totalmoney or one invoiceId doesnt exist");
@@ -299,6 +309,8 @@ namespace EOfficeAPI.Controllers.V1
             // id-sinin olmasini yoxlayiriq.
             if (await _repo.CheckIncomeContragentIdInvoiceId(contragentId, companyId))
                 return StatusCode(409, "contragentId  doesnt exist");
+            if (_repo.CheckExpenseNegativeValue(mappedExpese, mappedExpenseItem))
+                return StatusCode(428, "negative value is detected");
 
             #endregion
 
@@ -339,14 +351,18 @@ namespace EOfficeAPI.Controllers.V1
         //Put [baseUrl]/api/income/updateexpense
         [HttpPut]
         [Route("updateexpense")]
-        public async Task<IActionResult> UpdateExpense(VwExpensePut incomePut, [FromHeader] int? companyId,[FromHeader] int? expenseInvoiceId)
+        public async Task<IActionResult> UpdateExpense(VwExpensePut incomePut,[FromHeader] int? expenseInvoiceId, [FromHeader] int? companyId,[FromHeader] int? expenseId)
         {
             //Get edit income
             //didnt use yet
-            //Expense fromRepo = await _repo.GetEditExpense(incomeId, companyId);
+            Expense fromRepo = await _repo.GetEditExpense(expenseId, companyId);
+            //mapping income
+            Expense Mapped = _mapper.Map(incomePut.IncomePutDto, fromRepo);
             //Get edit incomeitems
-            List<ExpenseItem> incomeItems = await _repo.GetEditExpenseItems(expenseInvoiceId);
-            //Checking
+            List<ExpenseItem> expenseItemsRepo = await _repo.GetEditExpenseItems(expenseId);
+            //mapping incomeitems
+            List<ExpenseItem> expenseItemsMapped = _mapper.Map(incomePut.ExpenseItemGetDtos, expenseItemsRepo);
+            //Check:
             #region Check
             int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             if (companyId == null)
@@ -355,20 +371,20 @@ namespace EOfficeAPI.Controllers.V1
                 return Unauthorized();
             if (await _repo.CheckExpense(currentUserId, companyId))
                 return Unauthorized();
-            //checkig totalpaidmoney and totaloneinvoice
+            if (await _repo.CheckExpenseEqualingInvoiceTotalPriceForUpdate(incomePut.ExpenseItemGetDtos))
+                return StatusCode(411, "paidmoney big than totalmoney or that expenseinvoice  doesn't exist");
+          
+            if (_repo.CheckExpenseUpdateNegativeValue(incomePut.ExpenseItemGetDtos))
+                return StatusCode(428, "negative value is detected");
 
             #endregion
 
-            //mapping income
-            //Income Mapped = _mapper.Map(incomePut. fromRepo);
+            //Account:
+            var UpdateAccountDebit = _repo.UpdateExpenseAccountDebit(companyId, incomePut.ExpenseItemGetDtos);
+            var UpdateAccountKredit = _repo.UpdateExpenseAccountKredit(companyId, incomePut.ExpenseItemGetDtos);
 
-            //mapping incomeitems
-            List<ExpenseItem> expenseItemsMapped = _mapper.Map(incomePut.ExpenseItemGetDtos, incomeItems);
-
-            if (await _repo.CheckExpenseEqualingInvoiceTotalPriceForUpdate(expenseItemsMapped, expenseInvoiceId))
-                return StatusCode(411, "paidmoney big than totalmoney or that expenseinvoice  doesn't exist");
             //Put expense and expenseitems
-            var income = await _repo.EditExpense(expenseItemsMapped, expenseInvoiceId);
+            var income = await _repo.EditExpense(incomePut.ExpenseItemGetDtos, expenseInvoiceId);
 
             return Ok();
 

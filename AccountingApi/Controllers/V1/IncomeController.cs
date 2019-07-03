@@ -153,7 +153,7 @@ namespace AccountingApi.Controllers.V1
         //Put [baseUrl]/api/income/updateincome
         [HttpPut]
         [Route("updateincome")]
-        public async Task<IActionResult> UpdateIncome(VwIncomePut incomePut, [FromHeader] int? companyId, [FromHeader] int? incomeId)
+        public async Task<IActionResult> UpdateIncome(VwIncomePut incomePut, [FromHeader] int? companyId, [FromHeader] int? invoiceId, [FromHeader] int? incomeId)
         {
             //Get edit income
             //didnt use yet
@@ -174,22 +174,17 @@ namespace AccountingApi.Controllers.V1
                 return StatusCode(409, "companyId null");
             if (currentUserId == null)
                 return Unauthorized();
+            if (invoiceId == null)
+                return StatusCode(409, "invocieId null");
             if (incomePut.IncomeItemGetEditDtos == null)
                 return StatusCode(409, "incomeitems null");
             if (await _repo.CheckIncome(currentUserId, companyId))
                 return Unauthorized();
             if (await _repo.CheckIncomeEqualingInvoiceTotalPriceForUpdate(incomePut.IncomeItemGetEditDtos))
                 return StatusCode(411, "paidmoney big than totalmoney or that invoice  doesn't exist");
-            if (_repo.CheckIncomeNegativeValue(Mapped, incomeItemsMapped))
+            if (_repo.CheckIncomeUpdateNegativeValue(incomePut.IncomeItemGetEditDtos))
                 return StatusCode(428, "negative value is detected");
-
             #endregion
-
-
-            if (incomeItemsRepo.Count() == 0)
-            {
-                return StatusCode(409, "incomeId doesnt correct");
-            }
 
             //Accounting
             var UpdateAccountDebit = _repo.UpdateIncomeAccountDebit(companyId, incomePut.IncomeItemGetEditDtos);
@@ -198,7 +193,7 @@ namespace AccountingApi.Controllers.V1
            
 
             //Put income and inomeitems
-            var income = await _repo.EditIncome(incomeItemsRepo, incomePut.IncomeItemGetEditDtos);
+            var income = await _repo.EditIncome( incomePut.IncomeItemGetEditDtos,invoiceId);
 
             return Ok();
 

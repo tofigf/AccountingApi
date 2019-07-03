@@ -38,7 +38,6 @@ namespace AccountingApi.Controllers.V1
         [Route("addinvoice")]
         public async Task<IActionResult> AddInvoice(VwInvoice invoice, [FromHeader] int? companyId)
         {
-
             //mapping for creating invoice
             var mappedInvoice = _mapper.Map<Invoice>(invoice.InvoicePostDto);
 
@@ -74,8 +73,8 @@ namespace AccountingApi.Controllers.V1
             var itemToRetun = await _repo.CreateInvoiceItems(mappeditemInvoice, mappedInvoice.Id);
             //mapping for return
             var ToReturn = _mapper.Map<InvoiceGetDto>(invoiceToReturn);
-
-            //Company
+            //Company and Contragent
+            #region Company and Contragent
             //id ye gore sirketi getiririk
             Company companyFromRepo = await _repo.GetEditCompany(companyId);
             //map edirik
@@ -92,6 +91,7 @@ namespace AccountingApi.Controllers.V1
             Contragent updatedContragent = await _repo.EditContragent(contragentForUpdate, companyId);
             //qaytaracagimiz info
             CompanyAfterPutDto companyToReturn = _mapper.Map<CompanyAfterPutDto>(updatedCompany);
+            #endregion
 
             return Ok(ToReturn);
         }
@@ -177,6 +177,8 @@ namespace AccountingApi.Controllers.V1
                 return StatusCode(409, "invoiceId doesnt exist");
             if (_repo.CheckInvoiceNegativeValue(Mapped, MapperdInvoiceItems))
                 return StatusCode(428, "negative value is detected");
+            if (await _repo.CheckInvoiceItem(invoiceId, MapperdInvoiceItems))
+                return StatusCode(409, "invoiceItem not correct");
 
             //cheking product id
             //if (await _repo.CheckInvoiceProductId(Mapped.InvoiceItems))
@@ -185,11 +187,7 @@ namespace AccountingApi.Controllers.V1
             //Accounting
             var UpdateAccountDebit = _repo.UpdateInvoiceAccountDebit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountDebitId);
             var UpdateAccountKredit = _repo.UpdateInvoiceAccountKredit(invoiceId, companyId, invoicePut.InvoicePutDto, fromRepo.AccountKreditId);
-
-
-            //Check
-            if (await _repo.CheckInvoiceItem(invoiceId, MapperdInvoiceItems))
-                return StatusCode(409, "invoiceItem null");
+           
             //Company Contragent Edit
             #region Company Contragent Edit
             // Company
@@ -253,8 +251,8 @@ namespace AccountingApi.Controllers.V1
         }
         [Authorize]
         //Get[baseUrl]/api/invoice/existincome
-       [HttpGet]
-       [Route("existincome")]
+        [HttpGet]
+        [Route("existincome")]
         public async Task<bool> ExistIncome([FromHeader] int? invoiceId)
         {
             if (await _repo.CheckExistIncomeByInvoiceId(invoiceId))

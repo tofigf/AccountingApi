@@ -9,5 +9,8 @@ namespace AccountingApi.Dtos.Purchase.Expense
         public double? PaidMoney { get; set; }
         public DateTime ExpenseCreatedAt { get; set; }
         public double? TotalOneInvoice { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
+        public DateTime? Date { get; set; }
     }
 }

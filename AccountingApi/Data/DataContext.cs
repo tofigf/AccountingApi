@@ -1,4 +1,5 @@
 ﻿using AccountingApi.Models;
+using AccountingApi.Models.ProcudureDto;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,24 @@ namespace AccountingApi.Data
             //            .WillCascadeOnDelete(false);
             base.OnModelCreating(modelBuilder);
         }
+
+        //Procedure
+        #region Procedure
+
+        public DbQuery<BalanceSheetDto> BalanceSheetDtos { get; set; }
+        public DbQuery<IncomeFromQueryDto> InExReportQuery { get; set; }
+        public DbQuery<ExFromQueryDtoDto> ExFromQuery { get; set; }
+        public DbQuery<IncomeReportDto> IncomesFromQuery { get; set; }
+        public DbQuery<ExpenseReportDto> ExpensesFromQuery { get; set; }
+        public DbQuery<ProductsFromQueryDto> ProductsFromQuery { get; set; }
+        public DbQuery<InvoiceFromQueryDto> InvoiceFromQuery { get; set; }
+        public DbQuery<ExpenseInvoiceFromQueryDto> ExpenseInvoiceFromQuery { get; set; }
+        public DbQuery<ContragentFromQueryDto> ContragentFromQuery { get; set; }
+        public DbQuery<WorkerFromQueryDto> WorkerFromQuery { get; set; }
+        public DbQuery<NetIncomeFromQueryDto> NetIncomeFromQuery { get; set; }
+
+        #endregion
+
         public DbSet<User> Users { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Tax> Taxes { get; set; }

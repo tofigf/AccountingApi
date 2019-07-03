@@ -14,10 +14,16 @@ namespace AccountingApi.Data.Repository.Interface
         //Post
         Task<ExpenseInvoice> CreateInvoice(ExpenseInvoice invoice, int? companyId);
         Task<List<ExpenseInvoiceItem>> CreateInvoiceItems(List<ExpenseInvoiceItem> items, int? invoiceId);
-        //Cheking
+
+        //Check
+        #region Check
         Task<bool> CheckExpenseInvoice(int? currentUserId, int? companyId);
         Task<bool> CheckExpenseInvoiceProductId(List<ExpenseInvoiceItem> invoiceItems);
         Task<bool> CheckExpenseInvoiceId(int? invoiceId, int? companyId);
+        bool CheckInvoiceNegativeValue(ExpenseInvoice invoice, List<ExpenseInvoiceItem> items);
+        Task<bool> CheckExpenseInvoiceItem(int? invoiceId, List<ExpenseInvoiceItem> invoiceItems);
+        #endregion
+
         //Get
         Task<List<ExpenseInvoiceGetDto>> GetInvoice(PaginationParam productParam, int? companyId);
         //get for edit invoice by id
@@ -30,6 +36,9 @@ namespace AccountingApi.Data.Repository.Interface
         Task<ExpenseInvoice> EditInvoice(ExpenseInvoice invoice, List<ExpenseInvoiceItem> invoiceItems, int? invoiceId);
         Task<ExpenseInvoiceItem> DeleteInvoiceItem(int? invoiceItemId);
         Task<ExpenseInvoice> DeleteInvoice(int? companyId, int? invoiceId);
+        //Accounting Update
+        ExpenseInvoicePutDto UpdateInvoiceAccountDebit(int? invoiceId, int? companyId, ExpenseInvoicePutDto invoice, int? OldDebitId);
+        ExpenseInvoicePutDto UpdateInvoiceAccountKredit(int? invoiceId, int? companyId, ExpenseInvoicePutDto invoice, int? OldKeditId);
         #endregion
         //Expense
         #region Expense
@@ -42,12 +51,19 @@ namespace AccountingApi.Data.Repository.Interface
         //Post:
         Task<Expense> CreateExpense(int? companyId, int? contragentId, Expense expense, List<ExpenseItem> expenseItems);
         //Put:
-        Task<ExpenseItem> EditExpense(List<ExpenseItem> incomeItems, int? invoiceId);
+        Task<ExpenseItem> EditExpense(List<ExpenseItemGetDto> itemGetDtos, int? invoiceId);
         //Check:
+        #region Check
         Task<bool> CheckExpense(int? currentUserId, int? companyId);
-        Task<bool> CheckExpenseEqualingInvoiceTotalPriceForUpdate(List<ExpenseItem> expenseItems, int? invoiceId);
+        Task<bool> CheckExpenseEqualingInvoiceTotalPriceForUpdate(List<ExpenseItemGetDto> expenseItems);
         Task<bool> CheckExpenseEqualingInvoiceTotalPriceForCreate(List<ExpenseItem> incomeItems);
         Task<bool> CheckIncomeContragentIdInvoiceId(int? contragentId, int? companyId);
+        bool CheckExpenseNegativeValue(Expense expense, List<ExpenseItem> expenses);
+        bool CheckExpenseUpdateNegativeValue(List<ExpenseItemGetDto> expenses);
+        #endregion
+        //Account:
+        List<ExpenseItemGetDto> UpdateExpenseAccountDebit(int? companyId, List<ExpenseItemGetDto> incomeItem);
+        List<ExpenseItemGetDto> UpdateExpenseAccountKredit(int? companyId, List<ExpenseItemGetDto> incomeItem);
         //Delete:
         Task<ExpenseItem> DeleteExpenseItem(int? expenseItemId);
         #endregion

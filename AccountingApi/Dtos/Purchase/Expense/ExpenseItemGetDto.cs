@@ -1,4 +1,6 @@
-﻿namespace AccountingApi.Dtos.Purchase.Expense
+﻿using System;
+
+namespace AccountingApi.Dtos.Purchase.Expense
 {
     public class ExpenseItemGetDto
     {
@@ -7,5 +9,8 @@
         public double? PaidMoney { get; set; }
         public double? Residue { get; set; }
         public int ExpenseInvoiceId { get; set; }
+        public int? AccountDebitId { get; set; }
+        public int? AccountKreditId { get; set; }
+        public DateTime? Date { get; set; }
     }
 }

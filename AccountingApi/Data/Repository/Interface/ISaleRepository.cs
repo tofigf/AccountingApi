@@ -107,7 +107,7 @@ namespace AccountingApi.Data.Repository.Interface
         //Post:
         Task<Income> CreateIncome(int? companyId, int? contagentId, int[] Ids, Income income, List<IncomeItem> incomes);
         //Put:
-        Task<IncomeItem> EditIncome(List<IncomeItem> incomeItems,List<IncomeItemGetEditDto> itemGetDtos);
+        Task<IncomeItem> EditIncome(List<IncomeItemGetEditDto> itemGetDtos, int? invoiceId);
         //Check:
         #region Check
         Task<bool> CheckIncome(int? currentUserId, int? companyId);
@@ -115,6 +115,7 @@ namespace AccountingApi.Data.Repository.Interface
         Task<bool> CheckIncomeEqualingInvoiceTotalPriceForUpdate(List<IncomeItemGetEditDto> incomeItems);
         Task<bool> CheckIncomeEqualingInvoiceTotalPriceForCreate(List<IncomeItem> incomeItems);
         bool CheckIncomeNegativeValue(Income income, List<IncomeItem> incomes);
+        bool CheckIncomeUpdateNegativeValue(List<IncomeItemGetEditDto> incomes);
         //Account:
         List<IncomeItemGetEditDto> UpdateIncomeAccountDebit( int? companyId, List<IncomeItemGetEditDto> incomeItem);
         List<IncomeItemGetEditDto> UpdateIncomeAccountKredit( int? companyId, List<IncomeItemGetEditDto> incomeItem);

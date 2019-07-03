@@ -4,11 +4,14 @@ using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Nomenklatura.Kontragent;
 using AccountingApi.Dtos.Nomenklatura.Product;
 using AccountingApi.Dtos.Nomenklatura.Worker;
+using AccountingApi.Dtos.Purchase.Expense;
+using AccountingApi.Dtos.Purchase.ExpenseInvoice;
 using AccountingApi.Dtos.Sale.Income;
 using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Dtos.User;
 using AccountingApi.Models;
+using AccountingApi.Models.ProcudureDto;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -112,6 +115,7 @@ namespace AccountingApi.Helpers
             //AccountsPlan
             #region AccounstPlan
             CreateMap<AccountsPlan, AccountsPlanGetDto>().ReverseMap();
+            CreateMap<BalanceSheet, BalanceSheet>().ReverseMap();
             #endregion
 
             //Proposal
@@ -188,6 +192,7 @@ namespace AccountingApi.Helpers
             CreateMap<Income, IncomeEditGetDto>()
                   .ForMember(dto => dto.IncomeItemGetDtos, opt => opt
                     .MapFrom(src => src.IncomeItems.Select(s => new {
+
                         s.IsBank,
                         s.PaidMoney,
                         s.Id,
@@ -211,6 +216,7 @@ namespace AccountingApi.Helpers
                         s.AccountDebitId,
                         s.AccountKreditId,
                         s.Date
+
                     })));
 
             CreateMap<IncomeItem, IncomeItemInvoiceGetDto>().ReverseMap();
@@ -228,6 +234,77 @@ namespace AccountingApi.Helpers
             //.ForMember(m => m, opt => opt.Ignore());
             CreateMap<IncomeItemGetEditDto, IncomeItem>().ReverseMap();
             //.EqualityComparison((sir, si) => sir.Id == si.Id);
+
+            #endregion
+
+            //ExpenseInvoice
+            #region ExpenseInvoice
+
+            //Post
+            CreateMap<ExpenseInvoicePostDto, ExpenseInvoice>();
+            CreateMap<ExpenseInvoiceItemPostDto, ExpenseInvoiceItem>();
+
+            //Get
+            CreateMap<ExpenseInvoice, ExpenseInvoiceGetDto>();
+            CreateMap<Contragent, ExpenseInvoiceGetDto>();
+
+            //get for edit
+            CreateMap<ExpenseInvoice, ExpensiveInvoiceEditGetDto>()
+                  .ForMember(dto => dto.ExpensiveInvoiceItemGetDtos, opt => opt
+                    .MapFrom(src => src.ExpenseInvoiceItems.Select(s => new {
+                        ProductName = s.Product.Name,
+                        s.Id,
+                        s.Price,
+                        s.Qty,
+                        s.ProductId,
+                        s.TotalOneProduct
+                    })));
+            CreateMap<Company, ExpensiveInvoiceEditGetDto>();
+            CreateMap<Contragent, ExpensiveInvoiceEditGetDto>();
+            CreateMap<InvoiceItem, ExpensiveInvoiceEditGetDto>();
+
+            //Put
+            CreateMap<ExpenseInvoicePutDto, ExpenseInvoice>().ReverseMap();
+            CreateMap<ExpenseInvoiceItemPutDto, ExpenseInvoiceItem>().ReverseMap();
+
+            #endregion
+
+            //Expense
+            #region Expense
+            //Post:
+            CreateMap<ExpensePostDto, Expense>();
+            CreateMap<ExpenseItemPostDto, ExpenseItem>();
+            //Get:
+            CreateMap<Expense, ExpenseGetDto>().ReverseMap();
+            //get edit expense
+            CreateMap<ExpenseInvoice, ExpenseExInvoiceEditGetDto>().ForMember(dto => dto.ExpenseItemInvoiceGetDtos, opt => opt
+                    .MapFrom(src => src.ExpenseItems.Select(s => new {
+
+                        s.IsBank,
+                        s.PaidMoney,
+                        s.Id,
+                        ExpenseCreatedAt = s.Expense.CreatedAt,
+                        s.TotalOneInvoice,
+                        s.AccountDebitId,
+                        s.AccountKreditId,
+                        s.Date
+                    })));
+            //Put:
+            CreateMap<ExpenseItemGetDto, ExpenseItem>().ReverseMap();
+
+            #endregion
+
+            //Report
+            #region Report
+            CreateMap<IncomeFromQueryDto, InExReportDto>().ReverseMap();
+            CreateMap<ExFromQueryDtoDto, InExReportDto>().ReverseMap();
+            CreateMap<IncomeReportDto, IncomeReportDto>().ReverseMap();
+            CreateMap<ExpenseReportDto, ExpenseReportDto>().ReverseMap();
+            CreateMap<ProductsFromQueryDto, ProductsReportDto>().ReverseMap();
+            CreateMap<InvoiceFromQueryDto, InvoiceReportDto>().ReverseMap();
+            CreateMap<ExpenseInvoiceFromQueryDto, ExpenseInvoiceFromQueryDto>().ReverseMap();
+            CreateMap<WorkerFromQueryDto, WorkerFromQueryDto>().ReverseMap();
+            CreateMap<NetIncomeFromQueryDto, NetIncomeFromQueryDto>().ReverseMap();
 
             #endregion
 

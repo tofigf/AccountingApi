@@ -19,6 +19,8 @@ namespace AccountingApi.Models
         public int? AccountsPlanId { get; set; }
         public int? InvoiceId { get; set; }
         public int? IncomeItemId { get; set; }
+        public int? ExpenseInvoiceId { get; set; }
+        public int? ExpenseItemId { get; set; }
 
         public virtual Company Company { get; set; }
         public virtual  AccountsPlan AccountsPlan { get; set; }

@@ -16,9 +16,9 @@ namespace AccountingApi.Models
         public string InvoiceNumber { get; set; }
         public int ExpenseInvoiceId { get; set; }
         public int ExpenseId { get; set; }
+        public DateTime? Date { get; set; }
         public int? AccountDebitId { get; set; }
         public int? AccountKreditId { get; set; }
-
 
         [ForeignKey("AccountDebitId")]
         public virtual AccountsPlan AccountsPlanDebit { get; set; }

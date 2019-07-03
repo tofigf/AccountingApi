@@ -360,7 +360,6 @@ namespace AccountingApi.Data.Repository
         //Invoice
         #region Invoice
         //Post
-    
         public async Task<Invoice> CreateInvoice(Invoice invoice, int? companyId)
         {
             if (companyId == null)
@@ -387,6 +386,7 @@ namespace AccountingApi.Data.Repository
             await _context.SaveChangesAsync();
 
             //AccountPlan
+            #region AccountPlan
             AccountsPlan accountDebit = await _context.AccountsPlans.FirstOrDefaultAsync(f => f.Id == invoice.AccountDebitId);
             if (accountDebit.Debit == null || accountDebit.Debit == 0)
             {
@@ -425,6 +425,7 @@ namespace AccountingApi.Data.Repository
             };
             await _context.BalanceSheets.AddAsync(balanceSheetKredit);
             await _context.SaveChangesAsync();
+            #endregion
 
             return invoice;
         }
@@ -518,7 +519,7 @@ namespace AccountingApi.Data.Repository
             return contragent;
         }
         //Put:
-     // Accounting Update
+      // Accounting Update
         public InvoicePutDto UpdateInvoiceAccountDebit(int? invoiceId,int? companyId, InvoicePutDto invoice, int? OldDebitId)
         {
             if (invoiceId == null)
@@ -549,9 +550,12 @@ namespace AccountingApi.Data.Repository
                 //Balancsheet
                 BalanceSheet balanceSheetDebit =  _context.BalanceSheets.
                     FirstOrDefault(f => f.AccountsPlanId == OldDebitId && f.InvoiceId == invoiceId);
-                balanceSheetDebit.DebitMoney = invoice.TotalPrice;
-                balanceSheetDebit.AccountsPlanId = invoice.AccountDebitId;
-                _context.SaveChanges();
+                if(balanceSheetDebit != null)
+                {
+                    balanceSheetDebit.DebitMoney = invoice.TotalPrice;
+                    balanceSheetDebit.AccountsPlanId = invoice.AccountDebitId;
+                    _context.SaveChanges();
+                }
             }
             else
             {
@@ -625,9 +629,12 @@ namespace AccountingApi.Data.Repository
                 //Balancsheet
                 BalanceSheet balanceSheetKredit =  _context.BalanceSheets.
                     FirstOrDefault(f => f.AccountsPlanId == OldKeditId && f.InvoiceId == invoiceId);
-                balanceSheetKredit.KreditMoney = invoice.TotalPrice;
-                balanceSheetKredit.AccountsPlanId = invoice.AccountKreditId;
-                _context.SaveChanges();
+                if(balanceSheetKredit != null)
+                {
+                    balanceSheetKredit.KreditMoney = invoice.TotalPrice;
+                    balanceSheetKredit.AccountsPlanId = invoice.AccountKreditId;
+                    _context.SaveChanges();
+                }
             }
             else
             {
@@ -672,13 +679,11 @@ namespace AccountingApi.Data.Repository
         }
         public async Task<Invoice> EditInvoice(Invoice invoice, List<InvoiceItem> invoiceItems, int? invoiceId)
         {
-
             if (invoiceId == null)
                 return null;
 
             if (invoice == null)
                 return null;
-           
 
             var invoiceforpaidmoney = _context.Invoices.Find(invoice.Id);
             if (DateTime.Now > invoice.EndDate && invoice.TotalPrice == invoice.ResidueForCalc)
@@ -711,7 +716,7 @@ namespace AccountingApi.Data.Repository
                 //InvoiceItem dbInvoiceItem = await _context.InvoiceItems
                 //     .FirstOrDefaultAsync(w => w.InvoiceId == invoiceId && w.Id == item.Id);
                 ////Controller de yoxlamaq lazimdi error qaytarmaq lazimdi eger invocittem id-si  db yoxdusa
-                //if(dbInvoiceItem == null)
+                //if (dbInvoiceItem == null)
                 //{
                 //    return null;
                 //}
@@ -743,29 +748,61 @@ namespace AccountingApi.Data.Repository
 
             await _context.SaveChangesAsync();
 
-            // for deleting incomesitems
-            //var IncomeItems = await _context.IncomeItems.Where(f => f.InvoiceId == invoiceId).ToListAsync();
-            // for deleting income
-            //there is bug when deleting income ,invoiceId maybe declared difference  
-            //    var incomes = _context.Incomes.FirstOrDefault(f => f.Id == f.IncomeItems.FirstOrDefault(a => a.InvoiceId == invoiceId).IncomeId);
+          //  for deleting incomesitems
 
-            //if (IncomeItems.Count > 0)
-            //{
+           var IncomeItems = await _context.IncomeItems.Where(f => f.InvoiceId == invoiceId).ToListAsync();
+          //   for deleting income
 
+          // there is bug when deleting income, invoiceId maybe declared difference
 
-            //    foreach (var item in IncomeItems)
-            //    {
-            //        //removing incomeitems
-            //        _context.IncomeItems.Remove(item);
+          var income = _context.Incomes.FirstOrDefault(f => f.Id == f.IncomeItems.FirstOrDefault(a => a.InvoiceId == invoiceId).IncomeId);
 
-            //        _context.SaveChanges();
+            if (IncomeItems.Count > 0)
+            {
+                foreach (var item in IncomeItems)
+                {
+                    //Accounting
+                    #region Accounting
 
-            //    }
-            ////remove income
-            //_context.Incomes.Remove(incomes);
-            //_context.SaveChanges();
+                    var balancesheet = await _context.BalanceSheets.Where(w => w.IncomeItemId == item.Id).ToListAsync();
 
-            //   }
+                    var accountPlanDebit = _context.AccountsPlans.FirstOrDefault(f => f.Id == item.AccountDebitId);
+                    accountPlanDebit.Debit -= item.PaidMoney;
+                    _context.SaveChanges();
+                    var accoutPlanKredit = _context.AccountsPlans.FirstOrDefault(f => f.Id == item.AccountKreditId);
+                    accoutPlanKredit.Kredit -= item.PaidMoney;
+                    _context.SaveChanges();
+                    if (balancesheet != null)
+                    {
+                        _context.BalanceSheets.RemoveRange(balancesheet);
+                    }
+
+                    #endregion
+                    //For Deleting income 
+                    var dbincome = _context.Incomes.Include(s => s.IncomeItems).FirstOrDefault(w => w.CompanyId == income.CompanyId);
+
+                    if (dbincome.IncomeItems.Count() == 1)
+                    {
+                        //removing incomeitems
+                        _context.IncomeItems.Remove(item);
+
+                        _context.SaveChanges();
+
+                        //Remove Income
+                        _context.Incomes.Remove(income);
+                        _context.SaveChanges();
+
+                    }
+                    else
+                    {
+                        //removing incomeitems
+                        _context.IncomeItems.Remove(item);
+
+                        _context.SaveChanges();
+                    }
+                }
+
+            }
 
             return invoice;
 
@@ -847,7 +884,6 @@ namespace AccountingApi.Data.Repository
             return false;
         }
         #endregion
-
 
         //Delete:DeleteInvoiceItem
         public async Task<InvoiceItem> DeleteInvoiceItem(int? invoiceItemId)
@@ -1106,7 +1142,7 @@ namespace AccountingApi.Data.Repository
         }
         //Post
         #endregion
-
+        //Post
         public async Task<Income> CreateIncome(int? companyId, int? contragentId, int[] Ids, Income income, List<IncomeItem> incomes)
         {
             if (companyId == null)
@@ -1306,6 +1342,19 @@ namespace AccountingApi.Data.Repository
 
             return false;
         }
+        public bool CheckIncomeUpdateNegativeValue(List<IncomeItemGetEditDto> incomes)
+        {
+
+            foreach (var item in incomes)
+            {
+                if (item.PaidMoney < 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         #endregion
         // Accounting Update
         public List<IncomeItemGetEditDto> UpdateIncomeAccountDebit(int? companyId, List<IncomeItemGetEditDto> incomeItem)
@@ -1492,23 +1541,30 @@ namespace AccountingApi.Data.Repository
             return incomeItem;
         }
         //Put
-        public async Task<IncomeItem> EditIncome(List<IncomeItem> incomeItems,List<IncomeItemGetEditDto> itemGetDtos)
+        public async Task<IncomeItem> EditIncome(List<IncomeItemGetEditDto> itemGetDtos , int? invoiceId)
         {
+            if (invoiceId == null)
+                return null;
             //Update IncomeItems
-       
+            double? sumPaidMoney = itemGetDtos.Where(w => w.InvoiceId == invoiceId).Sum(s => s.PaidMoney);
             foreach (var item in itemGetDtos)
             {
-                    double? sumPaidMoney = itemGetDtos.Where(w => w.InvoiceId == item.InvoiceId).Sum(s => s.PaidMoney);
                     var invitem = _context.IncomeItems.Find(item.Id);
+                    var invoice = _context.Invoices.Find(invoiceId);
+                    invoice.ResidueForCalc += invitem.PaidMoney;
+                _context.SaveChanges();
 
                     invitem.PaidMoney = item.PaidMoney;
                     invitem.IsBank = item.IsBank;
                     invitem.AccountDebitId = item.AccountDebitId;
                     invitem.AccountKreditId = item.AccountKreditId;
                     _context.SaveChanges();
-                    //invoice for update IsPaid
-                    var invoice = _context.Invoices.Find(item.InvoiceId);
-                    if (invoice == null)
+                //invoice for update IsPaid
+
+                invoice.ResidueForCalc -= item.PaidMoney;
+                _context.SaveChanges();
+
+                if (invoice == null)
                         return null;
 
                     if (invoice.TotalPrice <= sumPaidMoney)
@@ -1527,10 +1583,11 @@ namespace AccountingApi.Data.Repository
                         invoice.IsPaid = 1;
                     }
 
-                    if (invoice.ResidueForCalc != null)
-                    {
-                        invoice.ResidueForCalc = invoice.TotalPrice - sumPaidMoney;
-                    }
+                //    if (invoice.ResidueForCalc != null)
+                //    {
+                //        invoice.ResidueForCalc = invoice.TotalPrice - sumPaidMoney;
+                //        _context.SaveChanges();
+                //}
                 
             }
             await _context.SaveChangesAsync();
