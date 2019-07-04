@@ -7,7 +7,7 @@ namespace AccountingApi.Models.ProcudureDto
 {
     public class ExpenseReportDto
     {
-        public string ExpenseInvoiceNumber { get; set; }
+        public string InvoiceNumber { get; set; }
         //contragent
         public string CompanyName { get; set; }
         public double? Total { get; set; }

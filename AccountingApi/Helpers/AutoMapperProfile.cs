@@ -1,4 +1,5 @@
 ﻿using AccountingApi.Dtos;
+using AccountingApi.Dtos.Account;
 using AccountingApi.Dtos.AccountsPlan;
 using AccountingApi.Dtos.Company;
 using AccountingApi.Dtos.Nomenklatura.Kontragent;
@@ -115,7 +116,7 @@ namespace AccountingApi.Helpers
             //AccountsPlan
             #region AccounstPlan
             CreateMap<AccountsPlan, AccountsPlanGetDto>().ReverseMap();
-            CreateMap<BalanceSheet, BalanceSheet>().ReverseMap();
+            CreateMap<BalanceSheetReturnDto, BalanceSheetReturnDto>().ReverseMap();
             #endregion
 
             //Proposal

@@ -78,7 +78,6 @@ namespace AccountingApi.Controllers.V1
 
             #endregion
 
-            //var incomes =   _repo.IncomesReport(reportFilter, companyId);
             var expenseFromQuery = await _repo.ExpensesQueryByCompanyId(reportFilter, companyId);
 
             var ToReturn = _mapper.Map<List<ExpenseReportDto>>(expenseFromQuery);

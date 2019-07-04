@@ -1,4 +1,5 @@
 ﻿using AccountingApi.Data.Repository.Interface;
+using AccountingApi.Dtos.Account;
 using AccountingApi.Models;
 using AccountingApi.Models.ProcudureDto;
 using ClosedXML.Excel;
@@ -67,13 +68,30 @@ namespace AccountingApi.Data.Repository
             return accountsPlans;
         }
         //BalanceSheet
-        public async Task<List<BalanceSheetDto>> BalanceSheet(int? companyId, DateTime? startDate, DateTime? endDate)
+        public async Task<List<BalanceSheetReturnDto>> BalanceSheet(int? companyId, DateTime? startDate, DateTime? endDate)
         {
             var balanceSheetQuery = await _context.BalanceSheetDtos
              .FromSql("exec Balance {0},{1},{2}",
              companyId,startDate,endDate).ToListAsync();
+            List<BalanceSheetReturnDto> sheetReturnDto = new List<BalanceSheetReturnDto>();
 
-            return balanceSheetQuery;
+            var balansReturn = balanceSheetQuery.Where(w=>w.allCircleDebit != 0 || w.allCircleKredit != 0
+            || w.startCircleDebit != 0 || w.startCircleKredit != 0 || w.endCircleDebit != 0 || w.endCircleKredit != 0
+            ).Select(s => new BalanceSheetReturnDto
+
+            {
+                AccPlanNumber = s.AccPlanNumber,
+                Name = s.Name,
+                startCircleDebit = s.startCircleDebit,
+                startCircleKredit = s.startCircleKredit,
+                allCircleDebit = s.allCircleDebit,
+                allCircleKredit = s.allCircleKredit,
+                endCircleDebit = s.endCircleDebit,
+                endCircleKredit = s.endCircleKredit
+            }).ToList();
+
+
+            return balansReturn;
         }
     }
 }
