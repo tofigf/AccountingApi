@@ -21,11 +21,13 @@ namespace AccountingApi.Models
         public int? IncomeItemId { get; set; }
         public int? ExpenseInvoiceId { get; set; }
         public int? ExpenseItemId { get; set; }
+        public int? ManualJournalId { get; set; }
 
         public virtual Company Company { get; set; }
         public virtual  AccountsPlan AccountsPlan { get; set; }
         public virtual Invoice Invoice { get; set; }
         public virtual IncomeItem IncomeItem { get; set; }
+        public virtual ManualJournal ManualJournal { get; set; }
 
     }
 }

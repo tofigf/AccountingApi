@@ -117,6 +117,11 @@ namespace AccountingApi.Helpers
             #region AccounstPlan
             CreateMap<AccountsPlan, AccountsPlanGetDto>().ReverseMap();
             CreateMap<BalanceSheetReturnDto, BalanceSheetReturnDto>().ReverseMap();
+            CreateMap<ManualJournalPostDto, ManualJournal>().ReverseMap();
+            CreateMap<ManualJournal, ManualJournalGetDto>().ReverseMap();
+            CreateMap<AccountsPlan, ManualJournalGetDto>().ReverseMap();
+            CreateMap<ManualJournal, ManualJournalGetEditDto>().ReverseMap();
+            CreateMap<AccountsPlan, ManualJournalGetEditDto>().ReverseMap();
             #endregion
 
             //Proposal
@@ -308,6 +313,8 @@ namespace AccountingApi.Helpers
             CreateMap<NetIncomeFromQueryDto, NetIncomeFromQueryDto>().ReverseMap();
 
             #endregion
+
+
 
         }
     }

@@ -70,6 +70,9 @@ namespace AccountingApi.Data
         public DbSet<ExpenseInvoice> ExpenseInvoices { get; set; }
         public DbSet<ExpenseInvoiceItem> ExpenseInvoiceItems { get; set; }
         public DbSet<ExpenseItem> ExpenseItems { get; set; }
+        public DbSet<ManualJournal> ManualJournals { get; set; }
+        public DbSet<OperationCategory> OperationCategories { get; set; }
+
 
     }
 }

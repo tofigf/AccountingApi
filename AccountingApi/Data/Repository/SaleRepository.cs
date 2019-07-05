@@ -519,7 +519,7 @@ namespace AccountingApi.Data.Repository
             return contragent;
         }
         //Put:
-      // Accounting Update
+        // Accounting Update
         public InvoicePutDto UpdateInvoiceAccountDebit(int? invoiceId,int? companyId, InvoicePutDto invoice, int? OldDebitId)
         {
             if (invoiceId == null)

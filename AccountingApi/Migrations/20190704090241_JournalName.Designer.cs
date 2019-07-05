@@ -4,14 +4,16 @@ using AccountingApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccountingApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190704090241_JournalName")]
+    partial class JournalName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -593,8 +595,6 @@ namespace AccountingApi.Migrations
                     b.Property<int?>("ContragentId");
 
                     b.Property<DateTime>("CreatedAt");
-
-                    b.Property<DateTime?>("Date");
 
                     b.Property<string>("Desc")
                         .HasMaxLength(300);
