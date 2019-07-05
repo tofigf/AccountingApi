@@ -189,6 +189,16 @@ namespace AccountingApi.Controllers.V1
             await _repo.DeleteManualJournal(companyId, journalId);
             return Ok();
         }
+        //Get [baseUrl]/api/accountsplan/getjournal
+        [HttpGet]
+        [Route("getjournal")]
+        public async Task<IActionResult> GetJournal([FromHeader] int? companyId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+           var FromRepo =   await _repo.GetJournal(companyId, startDate, endDate);
+
+
+            return Ok(FromRepo);
+        }
         #endregion
 
     }

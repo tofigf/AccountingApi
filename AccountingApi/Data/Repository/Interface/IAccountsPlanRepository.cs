@@ -25,5 +25,6 @@ namespace AccountingApi.Data.Repository.Interface
         ManualJournalPostDto UpdateManualJournalAccountDebit(int? journalId, int? companyId, ManualJournalPostDto journalPostDto, int? OldDebitId);
         ManualJournalPostDto UpdateManualJournalAccountKredit(int? journalId, int? companyId, ManualJournalPostDto journalPostDto, int? OldKeditId);
         Task<ManualJournal> DeleteManualJournal(int? companyId, int? journalId);
+        Task<List<JournalDto>> GetJournal(int? companyId, DateTime? startDate, DateTime? endDate);
     }
 }

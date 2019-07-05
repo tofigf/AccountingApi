@@ -43,6 +43,7 @@ namespace AccountingApi.Data
         public DbQuery<ContragentFromQueryDto> ContragentFromQuery { get; set; }
         public DbQuery<WorkerFromQueryDto> WorkerFromQuery { get; set; }
         public DbQuery<NetIncomeFromQueryDto> NetIncomeFromQuery { get; set; }
+        public DbQuery<JournalDto> JournalFromQuery { get; set; }
 
         #endregion
 

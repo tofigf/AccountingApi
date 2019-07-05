@@ -122,6 +122,7 @@ namespace AccountingApi.Helpers
             CreateMap<AccountsPlan, ManualJournalGetDto>().ReverseMap();
             CreateMap<ManualJournal, ManualJournalGetEditDto>().ReverseMap();
             CreateMap<AccountsPlan, ManualJournalGetEditDto>().ReverseMap();
+            CreateMap<JournalDto, JournalDto>().ReverseMap();
             #endregion
 
             //Proposal

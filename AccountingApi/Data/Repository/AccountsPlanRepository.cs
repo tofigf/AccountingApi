@@ -388,5 +388,14 @@ namespace AccountingApi.Data.Repository
             return manualJournal;
 
         }
+
+        public async Task<List<JournalDto>> GetJournal(int? companyId, DateTime? startDate, DateTime? endDate)
+        {
+            var JournalSheetQuery = await _context.JournalFromQuery
+              .FromSql("exec GetJournal {0},{1},{2}",
+              companyId, startDate, endDate).ToListAsync();
+
+            return JournalSheetQuery;
+        }
     }
 }
