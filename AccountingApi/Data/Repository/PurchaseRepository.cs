@@ -383,11 +383,18 @@ namespace AccountingApi.Data.Repository.Interface
   
             //Accounting
             #region Accounting
-            var balancesheetDebit = _context.BalanceSheets.FirstOrDefault(w => w.InvoiceId == expenseInvoice.Id && w.AccountsPlanId == expenseInvoice.AccountDebitId);
-            balancesheetDebit.DebitMoney = expenseInvoice.TotalPrice;
+            var balancesheetDebit = _context.BalanceSheets.FirstOrDefault(w => w.ExpenseInvoiceId == expenseInvoice.Id && w.AccountsPlanId == expenseInvoice.AccountDebitId);
+            if(balancesheetDebit != null)
+            {
+                balancesheetDebit.DebitMoney = expenseInvoice.TotalPrice;
+            }
             _context.SaveChanges();
-            var balancesheetKredit = _context.BalanceSheets.FirstOrDefault(w => w.InvoiceId == expenseInvoice.Id && w.AccountsPlanId == expenseInvoice.AccountKreditId);
-            balancesheetKredit.KreditMoney = expenseInvoice.TotalPrice;
+            var balancesheetKredit = _context.BalanceSheets.FirstOrDefault(w => w.ExpenseInvoiceId == expenseInvoice.Id && w.AccountsPlanId == expenseInvoice.AccountKreditId);
+            if(balancesheetKredit != null)
+            {
+                balancesheetKredit.KreditMoney = expenseInvoice.TotalPrice;
+
+            }
             _context.SaveChanges();
 
             var accountPlanDebit = _context.AccountsPlans.FirstOrDefault(f => f.Id == expenseInvoice.AccountDebitId);
@@ -424,30 +431,37 @@ namespace AccountingApi.Data.Repository.Interface
 
             //Accounting
             #region Accounting
-            var balancesheet = await _context.BalanceSheets.Where(w => w.CompanyId == companyId && w.InvoiceId == invoiceId).ToListAsync();
+            var balancesheet = await _context.BalanceSheets.Where(w => w.CompanyId == companyId && w.ExpenseInvoiceId == invoiceId).ToListAsync();
 
+            foreach (var item in expenseInvoiceItems)
+            {
+                var balancesheetExpense = await _context.BalanceSheets.Where(w => w.CompanyId == companyId && w.ExpenseItemId == item.Id).ToListAsync();
+                if(balancesheetExpense != null && balancesheet.Count != 0)
+                {
+                    _context.BalanceSheets.RemoveRange(balancesheetExpense);
+                }
+            }
             var accountPlanDebit = _context.AccountsPlans.FirstOrDefault(f => f.Id == expenseInvoice.AccountDebitId);
             accountPlanDebit.Debit -= expenseInvoice.TotalPrice;
             _context.SaveChanges();
             var accoutPlanKredit = _context.AccountsPlans.FirstOrDefault(f => f.Id == expenseInvoice.AccountKreditId);
             accoutPlanKredit.Kredit -= expenseInvoice.TotalPrice;
             _context.SaveChanges();
+            if (balancesheet != null && balancesheet.Count != 0)
+            {
+                _context.BalanceSheets.RemoveRange(balancesheet);
+            }
             #endregion
 
-            if (expenseInvoiceItems != null)
+            if (expenseInvoiceItems != null && expenseInvoiceItems.Count != 0)
             {
                 _context.ExpenseInvoiceItems.RemoveRange(expenseInvoiceItems);
             }
-            if (expenseItems != null)
+            if (expenseItems != null && expenseItems.Count != 0)
             {
                 _context.ExpenseItems.RemoveRange(expenseItems);
 
             }
-            if (balancesheet != null)
-            {
-                _context.BalanceSheets.RemoveRange(balancesheet);
-            }
-
             _context.ExpenseInvoices.Remove(expenseInvoice);
 
             await _context.SaveChangesAsync();

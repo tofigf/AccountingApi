@@ -19,6 +19,10 @@ namespace AccountingApi.Data.Repository.Interface
         Task<List<ContragentFromQueryDto>> ContragentReportQueryByCompanyId(int? companyId, int? DateUntil);
         Task<List<WorkerFromQueryDto>> WorkerReportQueryByCompanyId(int? companyId, int? DateUntil);
         Task<List<NetIncomeFromQueryDto>> NetIncomeReportQueryByCompanyId(int? companyId, int? DateUntil);
+        Task<List<InvoiceReportByContragentDto>> InvoiceReportByContragents(int? companyId);
+        Task<List<ProductAllDto>> ProductAll(int? companyId, ReportFilter reportFilter);
+        Task<List<ExpenseInvoiceReportByContragentDto>> ExpenseInvoiceReportByContragents(int? companyId);
+        Task<List<ProductExpenseAllDto>> ProductAllExpense(int? companyId, ReportFilter reportFilter);
 
     }
 }

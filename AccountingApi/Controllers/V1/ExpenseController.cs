@@ -228,8 +228,8 @@ namespace EOfficeAPI.Controllers.V1
                 return StatusCode(409, "companyId null");
             if (invoiceId == null)
                 return StatusCode(409, "expenseInvoiceId null");
-            if (await _repo.DeleteInvoice(companyId, invoiceId) == null)
-                return StatusCode(409, "object null");
+            //if (await _repo.DeleteInvoice(companyId, invoiceId) == null)
+            //    return StatusCode(409, "object null");
             #endregion
             await _repo.DeleteInvoice(companyId, invoiceId);
             return Ok();

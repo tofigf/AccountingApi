@@ -312,10 +312,11 @@ namespace AccountingApi.Helpers
             CreateMap<ExpenseInvoiceFromQueryDto, ExpenseInvoiceFromQueryDto>().ReverseMap();
             CreateMap<WorkerFromQueryDto, WorkerFromQueryDto>().ReverseMap();
             CreateMap<NetIncomeFromQueryDto, NetIncomeFromQueryDto>().ReverseMap();
-
+            CreateMap<InvoiceReportByContragentDto, InvoiceReportByContragentDto>().ReverseMap();
+            CreateMap<ProductAllDto, ProductAllDto>().ReverseMap();
+            CreateMap<ExpenseInvoiceReportByContragentDto, ExpenseInvoiceReportByContragentDto>().ReverseMap();
+            CreateMap<ProductExpenseAllDto, ProductExpenseAllDto>().ReverseMap();
             #endregion
-
-
 
         }
     }

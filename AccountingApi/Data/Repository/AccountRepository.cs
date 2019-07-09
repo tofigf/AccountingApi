@@ -204,5 +204,43 @@ namespace AccountingApi.Data.Repository
 
             return netReports;
         }
+        //InvoiceReportByContragent
+        public async Task<List<InvoiceReportByContragentDto>> InvoiceReportByContragents(int? companyId)
+        {
+            var Reports = await _context.invoiceReportByContragents
+         .FromSql("exec InvoiceReportByContragent {0}",
+         companyId).ToListAsync();
+
+            return Reports;
+        }
+        //ProductAll
+        public async Task<List<ProductAllDto>> ProductAll(int? companyId, ReportFilter reportFilter)
+        {
+            var Reports = await _context.ProductAllDtoQuery
+         .FromSql("exec GetProductsAllCount {0}",
+         companyId, reportFilter.StartDate, reportFilter.EndDate).ToListAsync();
+
+            return Reports;
+        }
+        //ExpenseInvoiceReportByContragent
+        public async Task<List<ExpenseInvoiceReportByContragentDto>> ExpenseInvoiceReportByContragents(int? companyId)
+        {
+            var Reports = await _context.ExpenseInvoiceReportByContragents
+         .FromSql("exec ExpenseInvoiceReportByContragent {0}",
+         companyId).ToListAsync();
+
+            return Reports;
+        }
+        //ProductAllExpense
+        public async Task<List<ProductExpenseAllDto>> ProductAllExpense(int? companyId, ReportFilter reportFilter)
+        {
+            var Reports = await _context.ProductExpenseAllQuery
+
+         .FromSql("exec GetProductsAllCountByExpense {0}",
+         companyId, reportFilter.StartDate, reportFilter.EndDate).ToListAsync();
+
+            return Reports;
+        }
+
     }
 }
