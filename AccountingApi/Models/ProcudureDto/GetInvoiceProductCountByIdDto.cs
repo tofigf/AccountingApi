@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace AccountingApi.Models.ProcudureDto
 {
-    public class InvoiceReportByContragentDto
+    public class GetInvoiceProductCountByIdDto
     {
-        public int Id { get; set; }
-        public  string CompanyName { get; set; }
-        public int? Qty { get; set; }
+        public int Qty { get; set; }
+        public string CompanyName { get; set; }
         public double? Price { get; set; }
     }
 }

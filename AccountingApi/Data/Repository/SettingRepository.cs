@@ -110,5 +110,7 @@ namespace AccountingApi.Data.Repository
 
             return tax;
         }
+
+      
     }
 }

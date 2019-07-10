@@ -31,7 +31,6 @@ namespace AccountingApi.Data
 
         //Procedure
         #region Procedure
-
         public DbQuery<BalanceSheetDto> BalanceSheetDtos { get; set; }
         public DbQuery<IncomeFromQueryDto> InExReportQuery { get; set; }
         public DbQuery<ExFromQueryDtoDto> ExFromQuery { get; set; }
@@ -48,7 +47,10 @@ namespace AccountingApi.Data
         public DbQuery<ProductAllDto> ProductAllDtoQuery { get; set; }
         public DbQuery <ExpenseInvoiceReportByContragentDto> ExpenseInvoiceReportByContragents { get; set; }
         public DbQuery<ProductExpenseAllDto> ProductExpenseAllQuery { get; set; }
-
+        public DbQuery<GetInvoiceProductCountByIdDto> GetInvoiceProductCountByIdQuery { get; set; }
+        public DbQuery<InvoicesReportByContragentIdDto> InvoicesReportByContragentIdQuery { get; set; }
+        public DbQuery<GetExpenseInvoiceProductCountByIdDto> GetExpenseInvoiceProductCountByIdQuery { get; set; }
+        public DbQuery<ExpenseInvoiceReportByContragentIdDto> ExpenseInvoiceReportByContragentIdQuery { get; set; }
         #endregion
 
         public DbSet<User> Users { get; set; }
@@ -77,6 +79,7 @@ namespace AccountingApi.Data
         public DbSet<ExpenseItem> ExpenseItems { get; set; }
         public DbSet<ManualJournal> ManualJournals { get; set; }
         public DbSet<OperationCategory> OperationCategories { get; set; }
+        public DbSet<UserSendMailChangePassword> UserSendMailChangePasswords { get; set; }
 
 
     }

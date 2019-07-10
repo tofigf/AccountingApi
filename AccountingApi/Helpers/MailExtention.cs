@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -9,14 +10,13 @@ namespace EOfficeAPI.Helpers
 {
     public static class MailExtention
     {
-
         public static void Send(string subject, string body, string email)
         {
             var message = new MailMessage();
 
             message.To.Add(new MailAddress(email)); // replace with valid value
 
-            message.From = new MailAddress("elchin@codeveloper.az"); // replace with valid value
+            message.From = new MailAddress("smb@eoffice.az"); // replace with valid value
 
             message.Subject = subject;
 
@@ -32,8 +32,8 @@ namespace EOfficeAPI.Helpers
 
                 {
 
-                    UserName = "elchin@codeveloper.az",
-                    Password = "elchin1998"
+                    UserName = "smb@eoffice.az",
+                    Password = "8HVbedWq9B2HMXyP"
                 };
 
                 smtp.Credentials = credential;
@@ -51,6 +51,21 @@ namespace EOfficeAPI.Helpers
                 return;
             }
 
+        }
+        public static void SendPasswordEmail(string email, string token)
+        {
+            //calling for creating the email body with html template   
+
+            string body = string.Empty;
+
+            using (StreamReader reader = new StreamReader("wwwroot/Templates/PasswordChange.html"))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{{token}}", token); //replacing the required things  
+
+            Send("eOffice xoşgəldiniz", body, email);
+            return;
         }
     }
 

@@ -29,5 +29,6 @@ namespace AccountingApi.Models
         public string Password { get; set; }
 
         public ICollection<Company> Companies { get; set; }
+        public ICollection<UserSendMailChangePassword> UserSendMailChangePasswords { get; set; }
     }
 }

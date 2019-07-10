@@ -3,6 +3,7 @@ using AccountingApi.Dtos.Sale.Income;
 using AccountingApi.Dtos.Sale.Invoice;
 using AccountingApi.Dtos.Sale.Proposal;
 using AccountingApi.Models;
+using EOfficeAPI.Helpers;
 using EOfficeAPI.Helpers.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -995,7 +996,7 @@ namespace AccountingApi.Data.Repository
             {
                 InvoiceId = Convert.ToInt32(invoiceId),
                 Email = email,
-                Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToLongDateString()).Replace('+', 't'),
+                Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToLongDateString()).Replace('+', 't').Replace('=','t'),
 
                 //1=planlinib, 2 = gozlemede,3=odenilib
                 IsPaid = 2
@@ -1003,7 +1004,7 @@ namespace AccountingApi.Data.Repository
 
             _context.InvoiceSentMails.Add(invoiceSent);
             _context.SaveChanges();
-
+          
             return invoiceSent;
         }
         public Invoice GetInvoiceByToken(string token)

@@ -236,8 +236,48 @@ namespace AccountingApi.Data.Repository
         {
             var Reports = await _context.ProductExpenseAllQuery
 
-         .FromSql("exec GetProductsAllCountByExpense {0}",
+         .FromSql("exec GetProductsAllCountByExpense {0},{1},{2}",
          companyId, reportFilter.StartDate, reportFilter.EndDate).ToListAsync();
+
+            return Reports;
+        }
+        //GetInvoiceProductCountById
+        public async Task<List<GetInvoiceProductCountByIdDto>> GetInvoiceProductCountById(int? companyId, int? productId)
+        {
+            var Reports = await _context.GetInvoiceProductCountByIdQuery
+
+         .FromSql("exec GetInvoiceProductCountById {0},{1}",
+         companyId, productId).ToListAsync();
+
+            return Reports;
+        }
+        //InvoicesReportByContragentId
+        public async Task<List<InvoicesReportByContragentIdDto>> InvoicesReportByContragentId(int? companyId, int? contragentId)
+        {
+            var Reports = await _context.InvoicesReportByContragentIdQuery
+
+         .FromSql("exec InvoicesReportByContragentId {0},{1}",
+         companyId, contragentId).ToListAsync();
+
+            return Reports;
+        }
+        //GetExpenseInvoiceProductCountById
+        public async Task<List<GetExpenseInvoiceProductCountByIdDto>> GetExpenseInvoiceProductCountById(int? companyId, int? productId)
+        {
+            var Reports = await _context.GetExpenseInvoiceProductCountByIdQuery
+
+         .FromSql("exec GetExpenseInvoiceProductCountById {0},{1}",
+         companyId, productId).ToListAsync();
+
+            return Reports;
+        }
+        //ExpenseInvoiceReportByContragentId
+        public async Task<List<ExpenseInvoiceReportByContragentIdDto>> ExpenseInvoiceReportByContragentId(int? companyId, int? contragentId)
+        {
+            var Reports = await _context.ExpenseInvoiceReportByContragentIdQuery
+
+         .FromSql("exec ExpenseInvoiceReportByContragentId {0},{1}",
+         companyId, contragentId).ToListAsync();
 
             return Reports;
         }

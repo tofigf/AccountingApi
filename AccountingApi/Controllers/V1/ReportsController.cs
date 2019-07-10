@@ -298,6 +298,89 @@ namespace AccountingApi.Controllers.V1
 
             return Ok(ToReturn);
         }
+        //Get [baseUrl]/api/reports/getinvoiceproductcountbyId
+        [HttpGet]
+        [Route("getinvoiceproductcountbyId")]
+        public async Task<IActionResult> GetInvoiceProductCountById([FromHeader] int? companyId, [FromHeader] int? productId)
+        {
+            //Check
+            #region Check
+            int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
+            if (currentUserId == null)
+                return Unauthorized();
 
+            #endregion
+
+            var FromQuery = await _repo.GetInvoiceProductCountById(companyId,productId);
+
+            var ToReturn = _mapper.Map<List<GetInvoiceProductCountByIdDto>>(FromQuery);
+
+            return Ok(ToReturn);
+        }
+        //Get [baseUrl]/api/reports/invoicesreportbycontragentid
+        [HttpGet]
+        [Route("invoicesreportbycontragentid")]
+        public async Task<IActionResult> InvoicesReportByContragentId([FromHeader] int? companyId, [FromHeader] int? contragentId)
+        {
+            //Check
+            #region Check
+            int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
+            if (currentUserId == null)
+                return Unauthorized();
+
+            #endregion
+
+            var FromQuery = await _repo.InvoicesReportByContragentId(companyId, contragentId);
+
+            var ToReturn = _mapper.Map<List<InvoicesReportByContragentIdDto>>(FromQuery);
+
+            return Ok(ToReturn);
+        }
+        //Get [baseUrl]/api/reports/getexpenseinvoiceproductcountbyid
+        [HttpGet]
+        [Route("getexpenseinvoiceproductcountbyid")]
+        public async Task<IActionResult> GetExpenseInvoiceProductCountById([FromHeader] int? companyId, [FromHeader] int? productId)
+        {
+            //Check
+            #region Check
+            int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
+            if (currentUserId == null)
+                return Unauthorized();
+
+            #endregion
+
+            var FromQuery = await _repo.GetExpenseInvoiceProductCountById(companyId, productId);
+
+            var ToReturn = _mapper.Map<List<GetExpenseInvoiceProductCountByIdDto>>(FromQuery);
+
+            return Ok(ToReturn);
+        }
+        //Get [baseUrl]/api/reports/expenseinvoicereportbycontragentid
+        [HttpGet]
+        [Route("expenseinvoicereportbycontragentid")]
+        public async Task<IActionResult> ExpenseInvoiceReportByContragentId([FromHeader] int? companyId, [FromHeader] int? contragentId)
+        {
+            //Check
+            #region Check
+            int? currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (companyId == null)
+                return StatusCode(409, "companyId null");
+            if (currentUserId == null)
+                return Unauthorized();
+
+            #endregion
+
+            var FromQuery = await _repo.ExpenseInvoiceReportByContragentId(companyId, contragentId);
+
+            var ToReturn = _mapper.Map<List<ExpenseInvoiceReportByContragentIdDto>>(FromQuery);
+
+            return Ok(ToReturn);
+        }
     }
 }

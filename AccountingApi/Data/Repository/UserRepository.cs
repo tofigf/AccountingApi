@@ -1,9 +1,11 @@
 ﻿using AccountingApi.Data.Repository.Interface;
 using AccountingApi.Helpers;
 using AccountingApi.Models;
+using EOfficeAPI.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -147,5 +149,21 @@ namespace AccountingApi.Data.Repository
 
             return false;
         }
+
+        public UserSendMailChangePassword CreateUserSentMail(int? userId, string email)
+        {
+            UserSendMailChangePassword userSent = new UserSendMailChangePassword
+            {
+                UserId = Convert.ToInt32(userId),
+                Email = email,
+                Token = CryptoHelper.Crypto.HashPassword(DateTime.Now.ToLongDateString()).Replace('+', 't').Replace('=', 't'),
+            };
+
+            _context.UserSendMailChangePasswords.Add(userSent);
+            _context.SaveChanges();
+            MailExtention.SendPasswordEmail(userSent.Email, userSent.Token);
+            return userSent;
+        }
+        
     }
 }

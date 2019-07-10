@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace AccountingApi.Models.ProcudureDto
 {
-    public class ProductAllDto
+    public class InvoicesReportByContragentIdDto
     {
-        public int Id { get; set; }
-        public int Qty { get; set; }
-        public string Name { get; set; }
+        public string InvoiceNumber { get; set; }
         public double? TotalPrice { get; set; }
+        public DateTime? PreparingDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 }

@@ -23,6 +23,10 @@ namespace AccountingApi.Data.Repository.Interface
         Task<List<ProductAllDto>> ProductAll(int? companyId, ReportFilter reportFilter);
         Task<List<ExpenseInvoiceReportByContragentDto>> ExpenseInvoiceReportByContragents(int? companyId);
         Task<List<ProductExpenseAllDto>> ProductAllExpense(int? companyId, ReportFilter reportFilter);
+        Task<List<GetInvoiceProductCountByIdDto>> GetInvoiceProductCountById(int? companyId, int? productId);
+        Task<List<InvoicesReportByContragentIdDto>> InvoicesReportByContragentId(int? companyId, int? contragentId);
+        Task<List<GetExpenseInvoiceProductCountByIdDto>> GetExpenseInvoiceProductCountById(int? companyId, int? productId);
+        Task<List<ExpenseInvoiceReportByContragentIdDto>> ExpenseInvoiceReportByContragentId(int? companyId, int? contragentId);
 
     }
 }
