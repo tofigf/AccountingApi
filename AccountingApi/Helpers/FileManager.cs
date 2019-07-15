@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,26 +41,46 @@ namespace AccountingApi.Helpers
                 default:
                     return null;
             }
+            string filename = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "." + ext;
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Uploads", filename);
 
 
             var imageDataByteArray = Convert.FromBase64String(FileRaw);
 
-            var imageDataStream = new MemoryStream(imageDataByteArray)
+            if (imageDataByteArray.Length > 5000000)
             {
-                Position = 0
-            };
-            //int i = FileName.LastIndexOf('.');
-            //FileName = FileName.Substring(0, i);
-            string filename = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "." + ext;
-
-            var path = Path.Combine(
-                       Directory.GetCurrentDirectory(), "wwwroot/Uploads",
-                       filename);
-
-            using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                imageDataStream.WriteTo(file);
+                return null;
             }
+            ResizeOptions option = new ResizeOptions
+            {
+                Mode = ResizeMode.Max,
+                Position = AnchorPositionMode.Center,
+                Size = new SixLabors.Primitives.Size(250, 250)
+            };
+
+            using (Image<Rgba32> image = Image.Load(imageDataByteArray))
+            {
+                //while (image.size/time>100 && image.Height/time>100)
+                //{
+                //}
+                image.Mutate(x => x
+                     .Resize(option));
+                image.Save(path);
+            }
+
+            //var imageDataStream = new MemoryStream(imageDataByteArray)
+            //{
+            //    Position = 0
+            //};
+            ////int i = FileName.LastIndexOf('.');
+            ////FileName = FileName.Substring(0, i);
+           
+
+            //using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
+            //{
+            //    imageDataStream.WriteTo(file);
+            //}
             return filename;
         }
 
